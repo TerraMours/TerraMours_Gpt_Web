@@ -1,0 +1,51 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: TerraMours_Gpt_Web
+  labels:
+    app: TerraMours_Gpt_Web
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: TerraMours_Gpt_Web
+  strategy:
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: TerraMours_Gpt_Web
+    spec:
+      containers:
+        - image: TerraMours/TerraMours_Gpt_Web
+          name: TerraMours_Gpt_Web
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 3002
+          env:
+            - name: OPENAI_API_KEY
+              value: sk-xxx
+            - name: OPENAI_API_BASE_URL
+              value: 'https://api.openai.com'
+            - name: OPENAI_API_MODEL
+              value: gpt-3.5-turbo
+            - name: API_REVERSE_PROXY
+              value: https://bypass.churchless.tech/api/conversation
+            - name: AUTH_SECRET_KEY
+              value: '123456'
+            - name: TIMEOUT_MS
+              value: '60000'
+            - name: SOCKS_PROXY_HOST
+              value: ''
+            - name: SOCKS_PROXY_PORT
+              value: ''
+            - name: HTTPS_PROXY
+              value: ''
+          resources:
+            limits:
+              cpu: 500m
+              memory: 500Mi
+            requests:
+              cpu: 300m
+              memory: 300Mi
+
