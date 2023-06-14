@@ -88,7 +88,7 @@ async function onConversation() {
 
   loading.value = true
   prompt.value = ''
-//2023.4.10 添加上下文
+	//2023.4.10 添加上下文
   // let options: Chat.ConversationRequest = {}
   let options: Chat.ConversationRequest = lastOptions
   const lastContext = conversationList.value[conversationList.value.length - 1]?.conversationOptions
@@ -140,7 +140,7 @@ async function onConversation() {
                 requestOptions: { prompt: message, options: { ...options } },
               },
             )
-//2023.4.10 添加上下文
+						//2023.4.10 添加上下文
             if (data != null && data.conversationId != null && data.conversationId.length !== 0)
               lastOptions = { conversationId: data.conversationId, parentMessageId: data.id }
 
