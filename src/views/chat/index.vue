@@ -61,6 +61,7 @@ dataSources.value.forEach((item, index) => {
 
 
 async function onConversation() {
+	debugger
 	let message = prompt.value
 	if (loading.value)
 		return
@@ -84,7 +85,7 @@ async function onConversation() {
 
 	loading.value = true
 	prompt.value = ''
-	return
+
 	//2023.4.10 添加上下文
 	// let options: Chat.ConversationRequest = {}
 	let options: Chat.ConversationRequest = lastOptions
@@ -107,7 +108,10 @@ async function onConversation() {
 	)
 	scrollToBottom()
 
+
+	debugger
 	try {
+
 		let lastText = ''
 		const fetchChatAPIOnce = async () => {
 			await fetchChatAPIProcess<Chat.ConversationResponse>({
