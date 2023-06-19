@@ -13,13 +13,12 @@
 			</NCol>
 		</NRow>
 
-		<div v-show="formData.modelType !== 1">
-			<span style="font-size: 24px;">返回图片数量1-10，本站不保存图片，需要请立即下载。</span>
-			<NSpace vertical>
-				<NSlider v-model:value="formData.Count" :max="10" :min="1"/>
-				<NInputNumber v-model:value="numOfImages" size="small" :max="10" :min="1"/>
-			</NSpace>
-		</div>
+		<!--		<div v-show="formData.modelType !== 1">-->
+		<!--			<span style="font-size: 24px;">返回图片数量1-10，本站不保存图片，需要请立即下载。</span>-->
+		<!--			<NSpace vertical>-->
+		<!--				<NSlider v-model:value="formData.Count" :max="10" :min="1"/>-->
+		<!--			</NSpace>-->
+		<!--		</div>-->
 		<div
 			id="image-scroll-container"
 			style="
@@ -60,7 +59,8 @@
 		</div>
 		<div class="absolute bottom-0 w-full">
 			<submit-footer v-model="formData.Prompt" placeholder="请输入图片描述词" @submit="submit">
-				<NPopselect v-model:value="formData.modelType" :options="modelOptions" trigger="click">
+				<NPopselect v-model:value="formData.modelType" :options="modelOptions" trigger="click"
+										:on-update:value="(value)=>{formData.modelType = value;formData.Count = 1}">
 					<NButton>{{ modelOptions.find(i => i.value === formData.modelType)?.label || '请选择模型' }}</NButton>
 				</NPopselect>
 				<SvgIcon icon="ri:settings-4-line" @click="showModal=true" class="text-2xl cursor-pointer"/>
@@ -76,6 +76,9 @@
 						 require-mark-placement="right-hanging">
 				<NFormItem label="图片验证码" path="verifycationCode">
 					<NInput v-model:value="formData.verifycationCode"></NInput>
+				</NFormItem>
+				<NFormItem label="生成数量" v-show="formData.modelType !== 1">
+					<NSlider v-model:value="formData.Count" :max="10" :min="1"/>
 				</NFormItem>
 			</NForm>
 
