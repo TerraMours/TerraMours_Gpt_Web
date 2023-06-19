@@ -2,13 +2,13 @@
 	<div class="h-full">
 		<div class="h-full dark:bg-[#24272e] transition-all" :class="[isMobile ? 'p-0' : 'p-4']">
 			<div class="h-full" :class="getMobileClass">
-				<NLayout class="z-40 transition" :class="getContainerClass" has-sider>
+				<NLayout class="z-40 transition h-full" has-sider>
 					<Sider/>
 					<NLayoutContent>
 						<NLayout has-sider sider-placement="right" style="height: 100%;">
 							<NLayoutContent content-style="padding:12px">
 								<NTabs type="line" animated v-model:value="selectedTab" @update:value="handleTabChange">
-									<NTabPane name="AI聊天模型" tab="AI聊天模型">
+									<NTabPane name="AI聊天" tab="AI聊天">
 										<div class="scrollable">
 											<RouterView v-slot="{ Component, route }">
 												<component :is="Component" :key="route.fullPath"/>
@@ -56,7 +56,7 @@ router.replace({name: 'Chat', params: {uuid: chatStore.active}})
 
 const {isMobile} = useBasicLayout()
 
-const selectedTab = ref("AI聊天模型");
+const selectedTab = ref("AI聊天");
 const cachedTab = localStorage.getItem("selectedTab"); // 获取之前缓存的 tab
 
 if (cachedTab) {
@@ -69,8 +69,6 @@ function handleTabChange(tab: string) {
 	localStorage.setItem("selectedTab", tab);
 }
 
-const collapsed = computed(() => appStore.siderCollapsed)
-
 const needPermission = computed(() => !!authStore.session?.auth && !authStore.token)
 
 const getMobileClass = computed(() => {
@@ -79,12 +77,7 @@ const getMobileClass = computed(() => {
 	return ['border', 'rounded-md', 'shadow-md', 'dark:border-neutral-800']
 })
 
-const getContainerClass = computed(() => {
-	return [
-		'h-full',
-		// {'pl-[260px]': !isMobile.value && !collapsed.value},
-	]
-})
+
 </script>
 
 <style scoped>
