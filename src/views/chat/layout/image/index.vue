@@ -1,5 +1,5 @@
 <template>
-	<div style="">
+	<div class="h-full relative">
 		<NRow>
 			<NCol span="12">
 				<NStatistic label="已使用次数" :value="usedCount">
@@ -58,9 +58,15 @@
 				</template>
 			</NImage>
 		</div>
-		<submit-footer v-model="formData.Prompt" placeholder="请输入图片描述词" @submit="submit">
-			<SvgIcon icon="ri:settings-4-line" @click="showModal=true" style="font-size: 1.5rem;cursor: pointer"/>
-		</submit-footer>
+		<div class="absolute bottom-0 w-full">
+			<submit-footer v-model="formData.Prompt" placeholder="请输入图片描述词" @submit="submit">
+				<NPopselect v-model:value="formData.modelType" :options="modelOptions" trigger="click">
+					<NButton>{{ modelOptions.find(i => i.value === formData.modelType)?.label || '请选择模型' }}</NButton>
+				</NPopselect>
+				<SvgIcon icon="ri:settings-4-line" @click="showModal=true" class="text-2xl cursor-pointer"/>
+			</submit-footer>
+		</div>
+
 
 		<NModal v-model:show="showModal" style="width: 90%; max-width: 600px;" preset="card">
 			<NForm model="formData" :rules="formRules"
@@ -69,17 +75,8 @@
 						 label-width="auto"
 						 require-mark-placement="right-hanging">
 				<NFormItem label="图片验证码" path="verifycationCode">
-					<NInput v-model="formData.verifycationCode"></NInput>
+					<NInput v-model:value="formData.verifycationCode"></NInput>
 				</NFormItem>
-				<NFormItem label="模型" path="modelType">
-					<NSelect
-						style="width: 140px"
-						v-model:value="formData.modelType"
-						:options="modelOptions"
-					/>
-
-				</NFormItem>
-
 			</NForm>
 
 		</NModal>
@@ -90,7 +87,6 @@
 <script lang="ts" setup>
 import {
 	NImage,
-	NSelect,
 	NInput,
 	NButton,
 	NSpace,
@@ -99,11 +95,11 @@ import {
 	useMessage,
 	NCol,
 	NStatistic,
-	NIcon,
 	NRow,
 	NModal,
 	NForm,
-	NFormItem
+	NFormItem,
+	NPopselect
 } from "naive-ui";
 import {reactive, ref} from "vue";
 import axios from 'axios';
@@ -125,7 +121,13 @@ const showModal = ref(false)
 
 const onPositiveClick = () => {
 }
-const formRules = {}
+const formRules = {
+	verifycationCode: {
+		required: true,
+		message: '请输入图片验证码',
+		trigger: 'blur'
+	}
+}
 const ms = useMessage();
 //signalR
 const {waitingCount, connection, imgUrl} = useSignalR(apiBaseUrl + '/graphhub');
@@ -145,16 +147,22 @@ const formData = reactive<SubmitDTO>({
 	SizeType: 1,
 	verifycationCode: authStore.imgKey ?? "",
 	modelType: 1,
-	connectionId: connection.value?.connectionId
+	connectionId: null
 })
 
 
 const submit = async () => {
+	if (!formData.verifycationCode) {
+		ms.warning('请先设置图片验证码')
+		showModal.value = true
+		return
+	}
+
 	if (!connection.value) {
 		ms.warning('页面已失效，请刷新页面！');
 		return;
 	}
-
+	formData.connectionId = connection.value?.connectionId
 	try {
 		authStore.setImgKey(formData.verifycationCode);
 		//signalR
