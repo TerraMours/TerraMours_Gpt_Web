@@ -45,7 +45,7 @@ export function fetchChatAPIProcess<T = any>(
   }
 
   return post<T>({
-    url: '/chat-process',
+    url: '/v1/Chat/ChatStream',
     data,
     signal: params.signal,
     onDownloadProgress: params.onDownloadProgress,
@@ -65,9 +65,20 @@ export function fetchVerify<T>(token: string) {
   })
 }
 
-export function generateImage<T>(Prompt: string,Count: string) {
+export function generateImage<T>(Prompt: string,
+	modelType: number,
+	connectionId: any,
+	Count: number,
+	Size: number) {
   return post<T>({
-    url: '/GenerateImage',
-    data: { Prompt,Count },
+    url: '/v1/Image/GenerateGraph',
+    data: { Prompt,Count,modelType,connectionId,Size },
+  })
+}
+
+export function login<T>(userAccount: string,userPassword: string) {
+  return post<T>({
+    url: '/v1/Login/Login',
+    data: { userAccount,userPassword },
   })
 }

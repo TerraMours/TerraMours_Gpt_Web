@@ -59,11 +59,16 @@
 		</div>
 		<div class="absolute bottom-0 w-full">
 			<submit-footer v-model="formData.Prompt" placeholder="请输入图片描述词" @submit="submit">
-				<NPopselect v-model:value="formData.modelType" :options="modelOptions" trigger="click"
+				<NPopselect v-model:value="formData.modelType" :options="modelTypeOptions" trigger="click"
 										:on-update:value="(value)=>{formData.modelType = value;formData.Count = 1}">
-					<NButton>{{ modelOptions.find(i => i.value === formData.modelType)?.label || '请选择模型' }}</NButton>
+					<NButton>{{ modelTypeOptions.find(i => i.value === formData.modelType)?.label || '请选择模型' }}</NButton>
+				</NPopselect>
+				<NPopselect v-model:value="formData.model" :options="modelOptions" trigger="click"
+										:on-update:value="(value)=>{formData.model = value;formData.Count = 1}">
+					<NButton>{{ modelOptions.find(i => i.value === formData.model)?.label || '请选择模型' }}</NButton>
 				</NPopselect>
 				<SvgIcon icon="ri:settings-4-line" @click="showModal=true" class="text-2xl cursor-pointer"/>
+				<SvgIcon icon="ri:file-user-line" @click="showModal=true" class="text-2xl cursor-pointer"/>
 			</submit-footer>
 		</div>
 
@@ -116,9 +121,13 @@ const apiBaseUrl = import.meta.env.VITE_APP_API_BASE_URL;
 const authStore = useAuthStoreWithout();
 const numOfImages = ref(1); // 初始值为1
 const usedCount = ref(0);//已生成图片数量
-const modelOptions: Array<{ label: string; value: number }> = [
+const modelTypeOptions: Array<{ label: string; value: number }> = [
 	{label: 'CHATGPT', value: 0},
 	{label: 'SD', value: 1},
+];
+const modelOptions: Array<{ label: string; value: string }> = [
+	{label: '二次元', value: '二次元'},
+	{label: '真人', value: '真人'},
 ];
 const showModal = ref(false)
 
@@ -141,16 +150,18 @@ type SubmitDTO = {
 	modelType: number
 	connectionId: any
 	Count: number
-	SizeType: number
+	Size: number,
+	model: string | null
 }
 
 const formData = reactive<SubmitDTO>({
 	Prompt: "",
 	Count: 1,
-	SizeType: 1,
+	Size: 512,
 	verifycationCode: authStore.imgKey ?? "",
 	modelType: 1,
-	connectionId: null
+	connectionId: null,
+	model: null
 })
 
 
@@ -169,13 +180,17 @@ const submit = async () => {
 	try {
 		authStore.setImgKey(formData.verifycationCode);
 		//signalR
-		const response = await axios.post(apiUrl + '/GenerateGraph', formData);
-		if (response.data.status === 'Fail') {
+		// 设置请求头
+		const headers = {
+		'Authorization': 'Bearer ' + authStore.token,
+		'Content-Type': 'application/json'
+		};
+		const response = await axios.post(apiUrl + '/v1/Image/GenerateGraph', formData,{headers});
+		if (response.data.code === 500) {
 			ms.error(response.data.message ?? 'error')
 			return
 		}
-		usedCount.value = response.data.data;
-		ms.success(response.data.message);
+		ms.success(response.data.data);
 
 	} catch (error) {
 		console.log(`请求失败：${error}`);

@@ -114,7 +114,7 @@ async function onConversation() {
 
 		let lastText = ''
 		const fetchChatAPIOnce = async () => {
-			await fetchChatAPIProcess<Chat.ConversationResponse>({
+			await fetchChatAPIProcess<string>({
 				prompt: message,
 				options,
 				signal: controller.signal,

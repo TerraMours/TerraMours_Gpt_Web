@@ -16,7 +16,7 @@ export interface HttpOption {
 export interface Response<T = any> {
   data: T
   message: string | null
-  status: string
+  code: number
 }
 
 function http<T = any>(
@@ -25,10 +25,10 @@ function http<T = any>(
   const successHandler = (res: AxiosResponse<Response<T>>) => {
     const authStore = useAuthStore()
 
-    if (res.data.status === 'Success' || typeof res.data === 'string')
+    if (res.data.code === 200 || typeof res.data === 'string')
       return res.data
 
-    if (res.data.status === 'Unauthorized') {
+    if (res.data.code === 500) {
       authStore.removeToken()
       window.location.reload()
     }

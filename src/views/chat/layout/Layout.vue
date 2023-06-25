@@ -69,7 +69,7 @@ function handleTabChange(tab: string) {
 	localStorage.setItem("selectedTab", tab);
 }
 
-const needPermission = computed(() => !!authStore.session?.auth && !authStore.token)
+const needPermission = computed(() => !authStore.token)
 
 const getMobileClass = computed(() => {
 	if (isMobile.value)
