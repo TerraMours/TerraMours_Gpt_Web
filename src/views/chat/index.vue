@@ -61,7 +61,7 @@ dataSources.value.forEach((item, index) => {
 
 
 async function onConversation() {
-	debugger
+
 	let message = prompt.value
 	if (loading.value)
 		return
@@ -109,7 +109,7 @@ async function onConversation() {
 	scrollToBottom()
 
 
-	debugger
+
 	try {
 
 		let lastText = ''
