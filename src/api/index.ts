@@ -23,17 +23,23 @@ export function fetchChatConfig<T = any>() {
 export function fetchChatAPIProcess<T = any>(
 	params: {
 		prompt: string
-		options?: { conversationId?: string; parentMessageId?: string }
+		// 会话ID
+		conversationId: number
+		model: string
+		modelType: number
+		// options?: { conversationId?: string; parentMessageId?: string }
 		signal?: GenericAbortSignal
 		onDownloadProgress?: (progressEvent: AxiosProgressEvent) => void
 	},
 ) {
 	const settingStore = useSettingStore()
 	const authStore = useAuthStore()
-
 	let data: Record<string, any> = {
 		prompt: params.prompt,
-		options: params.options,
+		// conversationId: params.conversationId,
+		// model: params.model,
+		// modelType: params.modelType,
+		systemMessage: settingStore.systemMessage || '',
 	}
 
 	if (authStore.isChatGPTAPI) {
@@ -46,7 +52,7 @@ export function fetchChatAPIProcess<T = any>(
 	}
 
 	return post<T>({
-		url: '/v1/Chat/ChatStream',
+		url: '/v1/Chat/ChatStream1',
 		data,
 		signal: params.signal,
 		onDownloadProgress: params.onDownloadProgress,

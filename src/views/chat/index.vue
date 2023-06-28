@@ -109,45 +109,45 @@ async function onConversation() {
 	scrollToBottom()
 
 
-
 	try {
 
 		let lastText = ''
 		const fetchChatAPIOnce = async () => {
 			await fetchChatAPIProcess<string>({
+				conversationId: +uuid, model: "gpt-3.5-trubo", modelType: 0,
 				prompt: message,
-				options,
 				signal: controller.signal,
 				onDownloadProgress: ({event}) => {
 					const xhr = event.target
 					const {responseText} = xhr
+					console.log('responseText====>', responseText)
 					// Always process the final line
 					const lastIndex = responseText.lastIndexOf('\n', responseText.length - 2)
 					let chunk = responseText
 					if (lastIndex !== -1)
 						chunk = responseText.substring(lastIndex)
 					try {
-						const data = JSON.parse(chunk)
+						const {data} = JSON.parse(chunk)
 						updateChat(
 							+uuid,
 							dataSources.value.length - 1,
 							{
 								dateTime: new Date().toLocaleString(),
-								text: lastText + (data.text ?? ''),
+								text: lastText + (data.Message ?? ''),
 								inversion: false,
 								error: false,
 								loading: true,
-								conversationOptions: {conversationId: data.conversationId, parentMessageId: data.id},
+								conversationOptions: {conversationId: data.ConversationId, parentMessageId: data.ChatRecordId},
 								requestOptions: {prompt: message, options: {...options}},
 							},
 						)
 						//2023.4.10 添加上下文
-						if (data != null && data.conversationId != null && data.conversationId.length !== 0)
-							lastOptions = {conversationId: data.conversationId, parentMessageId: data.id}
+						if (data != null && data.ConversationId != null && data.ConversationId.length !== 0)
+							lastOptions = {conversationId: data.ConversationId, parentMessageId: data.ChatRecordId}
 
 						if (openLongReply && data.detail.choices[0].finish_reason === 'length') {
-							options.parentMessageId = data.id
-							lastText = data.text
+							options.parentMessageId = data.ChatRecordId
+							lastText = data.Message
 							message = ''
 							return fetchChatAPIOnce()
 						}
@@ -156,7 +156,7 @@ async function onConversation() {
 					} catch (error) {
 						//
 					}
-				},
+				}
 			})
 			updateChatSome(+uuid, dataSources.value.length - 1, {loading: false})
 		}
@@ -247,12 +247,13 @@ async function onRegenerate(index: number) {
 		let lastText = ''
 		const fetchChatAPIOnce = async () => {
 			await fetchChatAPIProcess<Chat.ConversationResponse>({
-				prompt: message,
-				options,
+				prompt: message, conversationId: 0, model: "", modelType: 0,
+				// options,
 				signal: controller.signal,
 				onDownloadProgress: ({event}) => {
 					const xhr = event.target
 					const {responseText} = xhr
+
 					// Always process the final line
 					const lastIndex = responseText.lastIndexOf('\n', responseText.length - 2)
 					let chunk = responseText
@@ -283,7 +284,7 @@ async function onRegenerate(index: number) {
 					} catch (error) {
 						//
 					}
-				},
+				}
 			})
 			updateChatSome(+uuid, index, {loading: false})
 		}
