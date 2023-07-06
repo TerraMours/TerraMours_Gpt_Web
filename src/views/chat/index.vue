@@ -1,9 +1,9 @@
 <script setup lang='ts'>
-import type {Ref} from 'vue'
+import type {reactive,Ref} from 'vue'
 import {computed, onMounted, onUnmounted, ref} from 'vue'
 import {useRoute} from 'vue-router'
 import {storeToRefs} from 'pinia'
-import {NButton, useDialog, useMessage} from 'naive-ui'
+import {NButton, useDialog, useMessage,NModal,NForm,NFormItem, NInNInput} from 'naive-ui'
 import html2canvas from 'html2canvas'
 import {Message} from './components'
 import {useScroll} from './hooks/useScroll'
@@ -27,6 +27,8 @@ const dialog = useDialog()
 const ms = useMessage()
 
 const chatStore = useChatStore()
+
+const showModal = ref(false)
 
 useCopyCode()
 
@@ -114,7 +116,7 @@ async function onConversation() {
 		let lastText = ''
 		const fetchChatAPIOnce = async () => {
 			await fetchChatAPIProcess<string>({
-				conversationId: +uuid, model: "gpt-3.5-trubo", modelType: 0,
+				conversationId: options.conversationId, model: "gpt-3.5-trubo", modelType: 0,
 				prompt: message,
 				signal: controller.signal,
 				onDownloadProgress: ({event}) => {
@@ -516,6 +518,7 @@ onUnmounted(() => {
 									 :search-options="searchOptions"
 									 :render-option="renderOption"
 									 :buttonDisabled="buttonDisabled">
+			<SvgIcon icon="ri:file-user-line" @click="showModal=true" class="text-2xl cursor-pointer"/>
 			<HoverButton @click="handleClear">
 			            <span class="text-xl text-[#4f555e] dark:text-white">
 			              <SvgIcon icon="ri:delete-bin-line"/>
@@ -532,5 +535,29 @@ onUnmounted(() => {
 			            </span>
 			</HoverButton>
 		</submit-footer>
+		<NModal v-model:show="showModal" style="width: 90%; max-width: 600px;" preset="card">
+			<NForm 
+						 ref="formRef"
+						 label-placement="left"
+						 label-width="auto"
+						 require-mark-placement="right-hanging">
+				<NFormItem label="系统提示词" path="verifycationCode">
+					<NInput ></NInput>
+				</NFormItem>
+				<NFormItem label="模型选择" >
+					<NPopselect  trigger="click"
+										>
+					<!-- 目前固定一个ChatGpt模型 -->
+					<NButton>{{  'ChatGpt' }}</NButton>
+				</NPopselect>
+				<NPopselect trigger="click"
+										>
+					<NButton>{{  'gpt-3.5-turbo'||'gpt-3.5-turbo-16k' ||'gpt-4'}}</NButton>
+				</NPopselect>
+				</NFormItem>
+			</NForm>
+
+		</NModal>
 	</div>
+	
 </template>

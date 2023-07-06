@@ -24,7 +24,7 @@ export function fetchChatAPIProcess<T = any>(
 	params: {
 		prompt: string
 		// 会话ID
-		conversationId: number
+		conversationId?: number
 		model: string
 		modelType: number
 		// options?: { conversationId?: string; parentMessageId?: string }
@@ -36,9 +36,9 @@ export function fetchChatAPIProcess<T = any>(
 	const authStore = useAuthStore()
 	let data: Record<string, any> = {
 		prompt: params.prompt,
-		// conversationId: params.conversationId,
-		// model: params.model,
-		// modelType: params.modelType,
+		 conversationId: params.conversationId,
+		 model: params.model,
+		 modelType: params.modelType,
 		systemMessage: settingStore.systemMessage || '',
 	}
 
@@ -52,7 +52,7 @@ export function fetchChatAPIProcess<T = any>(
 	}
 
 	return post<T>({
-		url: '/v1/Chat/ChatStream1',
+		url: '/v1/Chat/ChatCompletion',
 		data,
 		signal: params.signal,
 		onDownloadProgress: params.onDownloadProgress,
