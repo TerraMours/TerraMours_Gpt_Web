@@ -1,16 +1,17 @@
 <template>
+    <NSpin :show="loading">
     <div class="p-4 space-y-5 min-h-[200px]">
         <div class="space-y-6">
             <div class="flex items-center space-x-4">
                 <span class="flex-shrink-0 w-[100px]">{{ $t('setting.name') }}</span>
                 <div class="w-[200px]">
-                <NInput v-model:value="name" placeholder="" />
+                <NInput v-model:value="computedConfig.userName" placeholder="" />
                 </div>
             </div>
             <div class="flex items-center space-x-4">
                 <span class="flex-shrink-0 w-[100px]">{{ $t('setting.avatarLink') }}</span>
                 <div class="flex-1">
-                <NInput v-model:value="avatar" placeholder="" />
+                <NInput v-model:value="computedConfig.headImageUrl" placeholder="" />
                 </div>
             </div>
             <div class="flex items-center space-x-4">
@@ -29,7 +30,7 @@
             <div class="flex items-center space-x-4">
                 <span class="flex-shrink-0 w-[100px]">{{ $t('setting.vipExpireTime') }}</span>
                 <div class="flex-1">
-                    <NTime :time="0" type="date" />
+                    <NTime :time="0" type="date" v-model:value="computedConfig.vipExpireTime"/>
                 </div>
             </div>
             <div class="flex items-center space-x-4">
@@ -45,22 +46,31 @@
             
         </div>
     </div>
+</NSpin>
 </template>
 
 <script lang="ts" setup>
-import { computed, ref } from 'vue'
+import { computed,ref,onMounted } from 'vue'
 import {useUserStore } from '@/store'
-import { NButton, NInput, NGradientText, NTime, useMessage } from 'naive-ui'
+import { NButton, NInput, NGradientText, NTime, useMessage,NSpin } from 'naive-ui'
 import { useAuthStoreWithout } from '@/store/modules/auth'
 import { t } from '@/locales'
+import { fetchGetUser } from '@/api'
+
+interface UserInfo {
+    userName?: string// 用户名
+    roleId?: number// 角色
+    headImageUrl?: string//头像url
+    vipLevel?: string//vip等级
+    vipExpireTime?: string//vip过期时间
+    imageCount?: string//剩余图片使用次数
+}
+const config = ref<UserInfo>()
 
 const userStore = useUserStore()
-const userInfo = computed(() => userStore.userInfo)
 const ms = useMessage()
-const avatar = ref(userInfo.value.avatar ?? '')
-
-const name = ref(userInfo.value.name ?? '')
-
+const loading = ref(false)
+const computedConfig = computed(() => config.value || {});
 function handleReset() {
   userStore.resetUserInfo()
   const authStore = useAuthStoreWithout()
@@ -68,4 +78,24 @@ function handleReset() {
   ms.success(t('common.success'))
   window.location.reload()
 }
+function updateUserInfo(options: Partial<UserInfo>) {
+  userStore.updateUserInfo(options)
+  ms.success(t('common.success'))
+}
+
+async function fetchUser() {
+  try {
+    loading.value = true
+    const { data } = await fetchGetUser<UserInfo>()
+    config.value = data
+    updateUserInfo(data)
+  }
+  finally {
+    loading.value = false
+  }
+}
+
+onMounted(() => {
+    fetchUser()
+})
 </script>
