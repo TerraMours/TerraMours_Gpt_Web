@@ -116,7 +116,7 @@ async function onConversation() {
 		let lastText = ''
 		const fetchChatAPIOnce = async () => {
 			await fetchChatAPIProcess<string>({
-				conversationId: options.conversationId, model: "gpt-3.5-trubo", modelType: 0,
+				conversationId: options.conversationId, model: "gpt-3.5-turbo", modelType: 0,
 				prompt: message,
 				signal: controller.signal,
 				onDownloadProgress: ({event}) => {
@@ -249,7 +249,7 @@ async function onRegenerate(index: number) {
 		let lastText = ''
 		const fetchChatAPIOnce = async () => {
 			await fetchChatAPIProcess<Chat.ConversationResponse>({
-				prompt: message, conversationId: 0, model: "", modelType: 0,
+				prompt: message, conversationId: options.conversationId, model: "gpt-3.5-turbo", modelType: 0,
 				// options,
 				signal: controller.signal,
 				onDownloadProgress: ({event}) => {

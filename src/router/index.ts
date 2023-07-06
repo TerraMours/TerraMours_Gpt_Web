@@ -45,6 +45,11 @@ const routes: RouteRecordRaw[] = [
     name: 'login',
     component: () => import('@/views/chat/layout/Login.vue'),
   },
+  {
+    path: '/register',
+    name: 'register',
+    component: () => import('@/views/chat/layout/Register.vue'),
+  },
 
   {
     path: '/:pathMatch(.*)*',

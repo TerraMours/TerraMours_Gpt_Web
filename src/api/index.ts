@@ -78,6 +78,21 @@ export function fetchVerify<T>(token: string) {
 	})
 }
 
+export function fetchEmailCode(userEmail: string) {
+	return post<boolean>({
+		url: '/v1/Email/CreateCheckCode',
+		data: {userEmail},
+	})
+}
+
+export function fetchRegister(userAccount: string,userPassword:string,repeatPassword:string,checkCode:string) {
+	return post<string>({
+		url: '/v1/Login/Register',
+		data: {userAccount,userPassword,repeatPassword,checkCode},
+	})
+}
+
+
 export function generateImage<T>(Prompt: string,
 																 modelType: number,
 																 connectionId: any,

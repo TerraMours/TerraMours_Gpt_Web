@@ -38,7 +38,7 @@
 							</NButton> -->
 
 							<div class="w-12px"></div>
-							<NButton class="flex-1" :block="true">
+							<NButton class="flex-1" :block="true" @click="toRegister">
 								注册
 							</NButton>
 						</div>
@@ -90,6 +90,9 @@ const formData = reactive<LoginDTO>({
 const loading = ref(false)
 const message = useMessage()
 const router = useRouter()
+const toRegister=async ()=>{
+	await router.push("/register")
+}
 const loginHandle = () => {
 	formRef.value?.validate(async (err) => {
 		loading.value = true
