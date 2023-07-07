@@ -1,5 +1,5 @@
 import { computed } from 'vue';
-import { REGEXP_PHONE, REGEXP_EMAIL } from '@/config';
+import { REGEXP_EMAIL } from '@/config';
 import {fetchEmailCode } from '@/api';
 import  useLoading  from './use-loading';
 import useCountDown from './use-count-down';
@@ -22,17 +22,17 @@ export default function useSmsCode() {
     });
   
     /** 判断手机号码格式是否正确 */
-    function isPhoneValid(phone: string) {
-      let valid = true;
-      if (phone.trim() === '') {
-        window.$message?.error('手机号码不能为空！');
-        valid = false;
-      } else if (!REGEXP_PHONE.test(phone)) {
-        window.$message?.error('手机号码格式错误！');
-        valid = false;
-      }
-      return valid;
-    }
+    // function isPhoneValid(phone: string) {
+    //   let valid = true;
+    //   if (phone.trim() === '') {
+    //     window.$message?.error('手机号码不能为空！');
+    //     valid = false;
+    //   } else if (!REGEXP_PHONE.test(phone)) {
+    //     window.$message?.error('手机号码格式错误！');
+    //     valid = false;
+    //   }
+    //   return valid;
+    // }
     /** 判断邮箱格式是否正确 */
     function isEmailValid(email: string) {
       let valid = true;

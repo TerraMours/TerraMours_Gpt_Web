@@ -97,9 +97,7 @@ import {
 	NImage,
 	NInput,
 	NButton,
-	NSpace,
 	NSlider,
-	NInputNumber,
 	useMessage,
 	NCol,
 	NStatistic,
@@ -119,7 +117,6 @@ import {SvgIcon} from '@/components/common'
 const apiUrl = import.meta.env.VITE_GLOB_API_URL;
 const apiBaseUrl = import.meta.env.VITE_APP_API_BASE_URL;
 const authStore = useAuthStoreWithout();
-const numOfImages = ref(1); // 初始值为1
 const usedCount = ref(0);//已生成图片数量
 const modelTypeOptions: Array<{ label: string; value: number }> = [
 	{label: 'CHATGPT', value: 0},
@@ -131,8 +128,7 @@ const modelOptions: Array<{ label: string; value: string }> = [
 ];
 const showModal = ref(false)
 
-const onPositiveClick = () => {
-}
+
 const formRules = {
 	verifycationCode: {
 		required: true,

@@ -18,7 +18,7 @@
 						/>
 					</template>
 				</NAutoComplete>
-				<NButton type="primary" :disabled="props.buttonDisabled" @click="emits('submit', autoValue.value)">
+				<NButton type="primary" :disabled="props.buttonDisabled" @click="emits('submit', autoValue)">
 					<template #icon>
               <span class="dark:text-black">
                 <SvgIcon :icon="props.svgIcon"/>
@@ -33,13 +33,13 @@
 </template>
 
 <script lang="ts" setup>
-import {computed, defineOptions, ref, watch} from "vue";
+import {computed, defineOptions as defineOptionsFromVue, ref, watch,withDefaults} from "vue";
 import {useBasicLayout} from "@/hooks/useBasicLayout";
 import {NButton, NAutoComplete, NInput} from 'naive-ui'
 import type {AutoCompleteOption, AutoCompleteGroupOption} from 'naive-ui'
 import {SvgIcon} from '@/components/common'
 
-defineOptions({name: 'submitFooter'})
+defineOptionsFromVue({name: 'submitFooter'})
 const {isMobile} = useBasicLayout()
 const footerClass = computed(() => {
 	if (isMobile.value) return ['sticky', 'left-0', 'bottom-0', 'right-0', 'p-2', 'pr-3', 'overflow-hidden']
@@ -50,7 +50,7 @@ const props = withDefaults(defineProps<{
 	placeholder: string,
 	searchOptions: Array<string | AutoCompleteOption | AutoCompleteGroupOption>,
 	svgIcon: string,
-	modelValue: string
+	modelValue: string | Record<string, any>,
 	renderOption: any //参考naive-ui (info: { node: VNode, option: SelectOption | SelectGroupOption, selected: boolean }) => VNodeChild
 	buttonDisabled: boolean
 }>(), {

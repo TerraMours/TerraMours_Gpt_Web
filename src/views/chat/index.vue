@@ -1,9 +1,9 @@
 <script setup lang='ts'>
-import type {reactive,Ref} from 'vue'
+import type {Ref} from 'vue'
 import {computed, onMounted, onUnmounted, ref} from 'vue'
 import {useRoute} from 'vue-router'
 import {storeToRefs} from 'pinia'
-import {NButton, useDialog, useMessage,NModal,NForm,NFormItem, NInNInput} from 'naive-ui'
+import {NButton, useDialog, useMessage,NModal,NForm,NFormItem} from 'naive-ui'
 import html2canvas from 'html2canvas'
 import {Message} from './components'
 import {useScroll} from './hooks/useScroll'
@@ -426,11 +426,11 @@ const renderOption = (option: { label: string }) => {
 	return []
 }
 
-const placeholder = computed(() => {
-	if (isMobile.value)
-		return t('chat.placeholderMobile')
-	return t('chat.placeholder')
-})
+// const placeholder = computed(() => {
+// 	if (isMobile.value)
+// 		return t('chat.placeholderMobile')
+// 	return t('chat.placeholder')
+// })
 
 const buttonDisabled = computed(() => {
 	return loading.value || !prompt.value || prompt.value.trim() === ''

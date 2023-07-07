@@ -32,18 +32,17 @@
 </template>
 
 <script setup lang='ts'>
-import {computed, ref,watch,onMounted} from 'vue'
-import {NLayout, NTabs, NTabPane, NLayoutContent, NLayoutSider} from 'naive-ui'
+import {computed, ref,onMounted} from 'vue'
+import {NLayout, NTabs, NTabPane, NLayoutContent} from 'naive-ui'
 import {useRouter} from 'vue-router'
 import Sider from './sider/index.vue'
 import Helped from './helped/index.vue'
 // import Permission from './Permission.vue'
 import ImageView from './image/index.vue'
 import {useBasicLayout} from '@/hooks/useBasicLayout'
-import {useAppStore, useAuthStore, useChatStore} from '@/store'
+import {useAuthStore, useChatStore} from '@/store'
 
 const router = useRouter()
-const appStore = useAppStore()
 const chatStore = useChatStore()
 const authStore = useAuthStore()
 
@@ -71,7 +70,6 @@ function redirectToLogin() {
   }
 }
 
-watch(authStore.token, redirectToLogin);
 onMounted(redirectToLogin);
 
 const getMobileClass = computed(() => {

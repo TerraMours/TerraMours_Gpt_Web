@@ -1,7 +1,6 @@
 <script setup lang='ts'>
 import { computed, ref } from 'vue'
 import { NButton, NInput, NModal, useMessage } from 'naive-ui'
-import { login } from '@/api'
 import { useAuthStore } from '@/store'
 import Icon403 from '@/icons/403.vue'
 
@@ -28,10 +27,10 @@ async function handleVerify() {
 
   try {
     loading.value = true
-    const { data } =await login(secretKey,secretKey)
-    authStore.setToken(data.token)
-    ms.success('success')
-    window.location.reload()
+    // const { data } =await login(secretKey,secretKey)
+    // authStore.setToken(data.token)
+    // ms.success('success')
+    // window.location.reload()
   }
   catch (error: any) {
     ms.error(error.message ?? 'error')

@@ -37,7 +37,7 @@ pnpm dev
 #### Docker 构建
 
 ```bash
-docker build -t TerraMours_Gpt_Web .
+docker build -t terramoursgptweb .
 
 # 前台运行
 docker run --name TerraMours_Gpt_Web -d -p 3002:4173 --restart always TerraMours_Gpt_Web

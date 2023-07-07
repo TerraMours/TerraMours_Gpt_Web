@@ -54,7 +54,7 @@
 
 <script setup lang="ts">
 import {reactive, ref} from 'vue';
-import {NForm, NSpin, NFormItem, NInput, NSpace, NCheckbox, NButton, NIcon, FormInst} from 'naive-ui';
+import {NForm, NSpin, NFormItem, NInput, NSpace, NCheckbox, NButton, FormInst} from 'naive-ui';
 import SvgIcon from '@/components/common/SvgIcon/index.vue'
 import {login} from "@/api";
 import {useAuthStore} from '@/store/modules/auth/index'
