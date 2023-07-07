@@ -33,7 +33,7 @@
 </template>
 
 <script lang="ts" setup>
-import {computed, defineOptions as defineOptionsFromVue, ref, watch,withDefaults} from "vue";
+import {computed, defineOptions as defineOptionsFromVue, ref, watch} from "vue";
 import {useBasicLayout} from "@/hooks/useBasicLayout";
 import {NButton, NAutoComplete, NInput} from 'naive-ui'
 import type {AutoCompleteOption, AutoCompleteGroupOption} from 'naive-ui'
@@ -50,7 +50,7 @@ const props = withDefaults(defineProps<{
 	placeholder: string,
 	searchOptions: Array<string | AutoCompleteOption | AutoCompleteGroupOption>,
 	svgIcon: string,
-	modelValue: string | Record<string, any>,
+	modelValue: string,
 	renderOption: any //参考naive-ui (info: { node: VNode, option: SelectOption | SelectGroupOption, selected: boolean }) => VNodeChild
 	buttonDisabled: boolean
 }>(), {

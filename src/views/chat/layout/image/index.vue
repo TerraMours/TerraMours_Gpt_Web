@@ -58,7 +58,7 @@
 			</NImage>
 		</div>
 		<div class="absolute bottom-0 w-full">
-			<submit-footer v-model="formData.Prompt" placeholder="请输入图片描述词" @submit="submit">
+			<submit-footer v-model="formData.Prompt" placeholder="请输入图片描述词" @submit="submit" :search-options="[]" :render-option=null :button-disabled="false">
 				<NPopselect v-model:value="formData.modelType" :options="modelTypeOptions" trigger="click"
 										:on-update:value="(value)=>{formData.modelType = value;formData.Count = 1}">
 					<NButton>{{ modelTypeOptions.find(i => i.value === formData.modelType)?.label || '请选择模型' }}</NButton>
@@ -74,8 +74,7 @@
 
 
 		<NModal v-model:show="showModal" style="width: 90%; max-width: 600px;" preset="card">
-			<NForm model="formData" :rules="formRules"
-						 ref="formRef"
+			<NForm
 						 label-placement="left"
 						 label-width="auto"
 						 require-mark-placement="right-hanging">
@@ -129,13 +128,13 @@ const modelOptions: Array<{ label: string; value: string }> = [
 const showModal = ref(false)
 
 
-const formRules = {
-	verifycationCode: {
-		required: true,
-		message: '请输入图片验证码',
-		trigger: 'blur'
-	}
-}
+// const formRules = {
+// 	verifycationCode: {
+// 		required: true,
+// 		message: '请输入图片验证码',
+// 		trigger: 'blur'
+// 	}
+// }
 const ms = useMessage();
 //signalR
 const {waitingCount, connection, imgUrl} = useSignalR(apiBaseUrl + '/graphhub');
