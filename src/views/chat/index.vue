@@ -3,7 +3,7 @@ import type {Ref} from 'vue'
 import {computed, onMounted, onUnmounted, ref} from 'vue'
 import {useRoute} from 'vue-router'
 import {storeToRefs} from 'pinia'
-import {NButton, useDialog, useMessage,NModal,NForm,NFormItem} from 'naive-ui'
+import {NButton, useDialog, useMessage,NModal,NForm,NFormItem,NPopselect,NInput} from 'naive-ui'
 import html2canvas from 'html2canvas'
 import {Message} from './components'
 import {useScroll} from './hooks/useScroll'
@@ -43,11 +43,21 @@ const dataSources = computed(() => chatStore.getChatByUuid(+uuid))
 const conversationList = computed(() => dataSources.value.filter(item => (!item.inversion && !!item.conversationOptions)))
 
 const prompt = ref<string>('')
+const modelType = ref<number>(0)
+const model=ref<string>('gpt-3.5-turbo')
 const loading = ref<boolean>(false)
 const inputRef = ref<Ref | null>(null)
 
 // 添加PromptStore
 const promptStore = usePromptStore()
+const modelTypeOptions: Array<{ label: string; value: number }> = [
+	{label: 'CHATGPT', value: 0},
+];
+const modelOptions: Array<{ label: string; value: string }> = [
+	{label: 'gpt-3.5-turbo', value: 'gpt-3.5-turbo'},
+	{label: 'gpt-3.5-turbo-16k(会员专属)', value: 'gpt-3.5-turbo-16k'},
+	{label: 'gpt-4(会员专属)', value: 'gpt-4'},
+];
 
 // 使用storeToRefs，保证store修改后，联想部分能够重新渲染
 const {promptList: promptTemplate} = storeToRefs<any>(promptStore)
@@ -116,7 +126,7 @@ async function onConversation() {
 		let lastText = ''
 		const fetchChatAPIOnce = async () => {
 			await fetchChatAPIProcess<string>({
-				conversationId: options.conversationId, model: "gpt-3.5-turbo", modelType: 0,
+				conversationId: options.conversationId, model: model.value, modelType: modelType.value,
 				prompt: message,
 				signal: controller.signal,
 				onDownloadProgress: ({event}) => {
@@ -545,14 +555,13 @@ onUnmounted(() => {
 					<NInput ></NInput>
 				</NFormItem>
 				<NFormItem label="模型选择" >
-					<NPopselect  trigger="click"
-										>
-					<!-- 目前固定一个ChatGpt模型 -->
-					<NButton>{{  'ChatGpt' }}</NButton>
+					<NPopselect v-model:value="modelType" :options="modelTypeOptions" trigger="click"
+										:on-update:value="(value)=>{modelType = value;}">
+					<NButton>{{ modelTypeOptions.find(i => i.value === modelType)?.label || '请选择模型' }}</NButton>
 				</NPopselect>
-				<NPopselect trigger="click"
-										>
-					<NButton>{{  'gpt-3.5-turbo'||'gpt-3.5-turbo-16k' ||'gpt-4'}}</NButton>
+				<NPopselect v-model:value="model" :options="modelOptions" trigger="click"
+										:on-update:value="(value)=>{model = value;}">
+					<NButton>{{ modelOptions.find(i => i.value === model)?.label || '请选择模型' }}</NButton>
 				</NPopselect>
 				</NFormItem>
 			</NForm>
