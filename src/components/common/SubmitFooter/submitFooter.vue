@@ -1,9 +1,10 @@
 <script lang="ts" setup>
 import {computed, defineOptions as defineOptionsFromVue, ref, watch} from 'vue'
-import {NAutoComplete, NButton, NInput} from 'naive-ui'
+import {NAutoComplete, NButton, NInput, NSpace, NDivider} from 'naive-ui'
 import type {AutoCompleteGroupOption, AutoCompleteOption} from 'naive-ui'
 import {useBasicLayout} from '@/hooks/useBasicLayout'
 import {SvgIcon} from '@/components/common'
+import {countTokens} from '@/utils/index'
 
 const props = withDefaults(defineProps<{
 	placeholder: string
@@ -13,6 +14,7 @@ const props = withDefaults(defineProps<{
 	renderOption: any // 参考naive-ui (info: { node: VNode, option: SelectOption | SelectGroupOption, selected: boolean }) => VNodeChild
 	buttonDisabled: boolean
 	counter: number
+	showToken: boolean
 }>(), {
 	placeholder: '请输入...',
 	svgIcon: 'ri:send-plane-fill',
@@ -46,6 +48,8 @@ const handleEnter = (event: KeyboardEvent) => {
 		}
 	}
 }
+
+
 </script>
 
 <template>
@@ -67,7 +71,15 @@ const handleEnter = (event: KeyboardEvent) => {
 							@keypress="handleEnter"
 							:maxlength="counter"
 							show-count
-						/>
+						>
+							<template #count="{ value }">
+								<NSpace>
+									<span v-if="showToken">token : {{ countTokens(autoValue) }}</span>
+									<NDivider vertical v-if="showToken"/>
+									<span>{{ value.length }} / {{ counter }}</span>
+								</NSpace>
+							</template>
+						</NInput>
 					</template>
 				</NAutoComplete>
 				<NButton type="primary" :disabled="props.buttonDisabled" @click="emits('submit', autoValue)">

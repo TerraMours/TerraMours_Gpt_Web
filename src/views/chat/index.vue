@@ -534,6 +534,7 @@ onUnmounted(() => {
     </main>
     <SubmitFooter
       v-model="prompt"
+			show-token
       :search-options="searchOptions"
       :render-option="renderOption"
       :button-disabled="buttonDisabled"
