@@ -169,11 +169,11 @@ const formData = reactive<SubmitDTO>({
 
 
 const submit = async () => {
-	if (!formData.verifycationCode) {
-		ms.warning('请先设置图片验证码')
-		showModal.value = true
-		return
-	}
+	// if (!formData.verifycationCode) {
+	// 	ms.warning('请先设置图片验证码')
+	// 	showModal.value = true
+	// 	return
+	// }
 
 	if (!connection.value) {
 		ms.warning('页面已失效，请刷新页面！');

@@ -32,7 +32,7 @@
 </template>
 
 <script setup lang='ts'>
-import {computed, ref,onMounted} from 'vue'
+import {computed, ref} from 'vue'
 import {NLayout, NTabs, NTabPane, NLayoutContent} from 'naive-ui'
 import {useRouter} from 'vue-router'
 import Sider from './sider/index.vue'
@@ -40,11 +40,10 @@ import Helped from './helped/index.vue'
 // import Permission from './Permission.vue'
 import ImageView from './image/index.vue'
 import {useBasicLayout} from '@/hooks/useBasicLayout'
-import {useAuthStore, useChatStore} from '@/store'
+import { useChatStore} from '@/store'
 
 const router = useRouter()
 const chatStore = useChatStore()
-const authStore = useAuthStore()
 
 router.replace({name: 'Chat', params: {uuid: chatStore.active}})
 
@@ -64,13 +63,6 @@ function handleTabChange(tab: string) {
 	localStorage.setItem("selectedTab", tab);
 }
 
-// function redirectToLogin() {
-//   if (!authStore.token) {
-//     router.push("/login");
-//   }
-// }
-//
-// onMounted(redirectToLogin);
 
 const getMobileClass = computed(() => {
 	if (isMobile.value)

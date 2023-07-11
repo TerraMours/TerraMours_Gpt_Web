@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import {computed, defineOptions as defineOptionsFromVue, ref, watch} from 'vue'
-import {NAutoComplete, NButton, NInput, NSpace, NDivider} from 'naive-ui'
+import {NAutoComplete, NButton, NInput, NSpace} from 'naive-ui'
 import type {AutoCompleteGroupOption, AutoCompleteOption} from 'naive-ui'
 import {useBasicLayout} from '@/hooks/useBasicLayout'
 import {SvgIcon} from '@/components/common'
