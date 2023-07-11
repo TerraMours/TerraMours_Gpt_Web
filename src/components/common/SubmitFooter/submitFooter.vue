@@ -73,9 +73,9 @@ const handleEnter = (event: KeyboardEvent) => {
 							show-count
 						>
 							<template #count="{ value }">
-								<NSpace>
+								<NSpace :size="[2,0]">
 									<span v-if="showToken">token : {{ countTokens(autoValue) }}</span>
-									<NDivider vertical v-if="showToken"/>
+									<span style="color:#e1e1e1 !important;"   v-if="showToken">|</span>
 									<span>{{ value.length }} / {{ counter }}</span>
 								</NSpace>
 							</template>

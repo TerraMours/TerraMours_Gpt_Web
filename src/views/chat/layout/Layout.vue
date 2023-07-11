@@ -64,13 +64,13 @@ function handleTabChange(tab: string) {
 	localStorage.setItem("selectedTab", tab);
 }
 
-function redirectToLogin() {
-  if (!authStore.token) {
-    router.push("/login");
-  }
-}
-
-onMounted(redirectToLogin);
+// function redirectToLogin() {
+//   if (!authStore.token) {
+//     router.push("/login");
+//   }
+// }
+//
+// onMounted(redirectToLogin);
 
 const getMobileClass = computed(() => {
 	if (isMobile.value)
