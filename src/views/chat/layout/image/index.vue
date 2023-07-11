@@ -58,7 +58,15 @@
 			</NImage>
 		</div>
 		<div class="absolute bottom-0 w-full">
-			<submit-footer v-model="formData.Prompt" placeholder="请输入图片描述词" @submit="submit" :search-options="[]" :render-option=null :button-disabled="false">
+			<SubmitFooter 
+			v-model="formData.Prompt" 
+			placeholder="请输入图片描述词" 
+			@submit="submit" 
+			:search-options="[]" 
+			:render-option=null 
+			:button-disabled="false"
+			:showToken=false
+			:counter="500">
 				<NPopselect v-model:value="formData.modelType" :options="modelTypeOptions" trigger="click"
 										:on-update:value="(value)=>{formData.modelType = value;formData.Count = 1}">
 					<NButton>{{ modelTypeOptions.find(i => i.value === formData.modelType)?.label || '请选择模型' }}</NButton>
@@ -69,7 +77,7 @@
 				</NPopselect>
 				<SvgIcon icon="ri:settings-4-line" @click="showModal=true" class="text-2xl cursor-pointer"/>
 				<SvgIcon icon="ri:file-user-line" @click="showModal=true" class="text-2xl cursor-pointer"/>
-			</submit-footer>
+			</SubmitFooter>
 		</div>
 
 
