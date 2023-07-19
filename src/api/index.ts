@@ -1,5 +1,5 @@
 import type {AxiosProgressEvent, GenericAbortSignal} from 'axios'
-import {post,get} from '@/utils/request'
+import {post, get} from '@/utils/request'
 import {useAuthStore, useSettingStore} from '@/store'
 
 export function fetchChatAPI<T = any>(
@@ -42,9 +42,9 @@ export function fetchChatAPIProcess<T = any>(
 	const authStore = useAuthStore()
 	let data: Record<string, any> = {
 		prompt: params.prompt,
-		 conversationId: params.conversationId,
-		 model: params.model,
-		 modelType: params.modelType,
+		conversationId: params.conversationId,
+		model: params.model,
+		modelType: params.modelType,
 		systemMessage: settingStore.systemMessage || '',
 	}
 
@@ -62,6 +62,10 @@ export function fetchChatAPIProcess<T = any>(
 		data,
 		signal: params.signal,
 		onDownloadProgress: params.onDownloadProgress,
+		headers: {
+			'Accept': "application/octet-stream",
+			"Content-Type": "application/json"
+		}
 	})
 }
 
@@ -85,10 +89,10 @@ export function fetchEmailCode(userEmail: string) {
 	})
 }
 
-export function fetchRegister(userAccount: string,userPassword:string,repeatPassword:string,checkCode:string) {
+export function fetchRegister(userAccount: string, userPassword: string, repeatPassword: string, checkCode: string) {
 	return post<string>({
 		url: '/v1/Login/Register',
-		data: {userAccount,userPassword,repeatPassword,checkCode},
+		data: {userAccount, userPassword, repeatPassword, checkCode},
 	})
 }
 
