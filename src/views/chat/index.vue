@@ -50,7 +50,7 @@ const loading = ref<boolean>(false)
 const showModal = ref(false)
 
 const modelOptions: Array<{ label: string; value: string; length: number }> = [
-	{label: 'gpt-3.5-turbo', value: 'gpt-3.5-turbo', length: 200},
+	{label: 'gpt-3.5-turbo', value: 'gpt-3.5-turbo', length: 2000},
 	{label: 'gpt-3.5-turbo-16k(会员专属)', value: 'gpt-3.5-turbo-16k', length: 1000},
 	{label: 'gpt-4(会员专属)', value: 'gpt-4', length: 2000},
 ]

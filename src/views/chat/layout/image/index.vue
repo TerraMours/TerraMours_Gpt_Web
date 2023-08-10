@@ -76,7 +76,7 @@
 					<NButton>{{ modelOptions.find(i => i.value === formData.model)?.label || '请选择模型' }}</NButton>
 				</NPopselect>
 				<SvgIcon icon="ri:settings-4-line" @click="showModal=true" class="text-2xl cursor-pointer"/>
-				<SvgIcon icon="ri:file-user-line" @click="showModal=true" class="text-2xl cursor-pointer"/>
+				<SvgIcon icon="ri:file-user-line" @click="history" class="text-2xl cursor-pointer"/>
 			</SubmitFooter>
 		</div>
 
@@ -120,6 +120,8 @@ import {useAuthStoreWithout} from '@/store/modules/auth'
 import {useSignalR} from '@/views/chat/hooks/useSignalR';
 import SubmitFooter from "@/components/common/SubmitFooter/submitFooter.vue";
 import {SvgIcon} from '@/components/common'
+import {MyImageList } from '@/api';
+import { stringify } from "querystring";
 // 定义后端接口的地址
 const apiUrl = import.meta.env.VITE_GLOB_API_URL;
 const apiBaseUrl = import.meta.env.VITE_APP_API_BASE_URL;
@@ -201,4 +203,18 @@ const submit = async () => {
 	}
 	console.log("提交的参数：", formData); // 在控制台输出提交的参数
 };
+
+const history = async () => {
+  // 设置请求头
+  const { data } = await MyImageList(null, 1, 10);
+  if (data.items != null) {
+    let imaglist: string[] = [];
+    data.items.forEach((m: any) => {
+      imaglist.push(m.imagUrl);
+    });
+    imgUrl.value = imaglist as never[];
+  }
+}
+
+
 </script>

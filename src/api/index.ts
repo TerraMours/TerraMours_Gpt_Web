@@ -1,6 +1,7 @@
 import type {AxiosProgressEvent, GenericAbortSignal} from 'axios'
 import {post, get} from '@/utils/request'
 import {useAuthStore, useSettingStore} from '@/store'
+import { type } from 'os';
 
 export function fetchChatAPI<T = any>(
 	prompt: string,
@@ -118,5 +119,28 @@ export function login(data: { userAccount: string, userPassword: string }) {
 	return post<LoginRes>({
 		url: '/v1/Login/Login',
 		data,
+	})
+}
+
+type PagedRes<T> = {
+	items:T[]
+	total: string
+	page: number
+	pageSize: number
+}
+type ImageRes={
+	imageRecordId:number
+	prompt:string|null
+	pranslatePrompt:string|null
+	imagUrl:string
+	forwardCount:number
+	collectCount:number
+	likeCount:number
+	createDate:Date
+}
+export function MyImageList(queryString: string |null, pageIndex: number, pageSize: number) {
+	return post<PagedRes<ImageRes>>({
+		url: '/v1/Image/MyImageList',
+		data:{queryString,pageIndex,pageSize},
 	})
 }
