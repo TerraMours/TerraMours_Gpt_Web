@@ -124,7 +124,7 @@ export function login(data: { userAccount: string, userPassword: string }) {
 
 type PagedRes<T> = {
 	items:T[]
-	total: string
+	total: number
 	page: number
 	pageSize: number
 }

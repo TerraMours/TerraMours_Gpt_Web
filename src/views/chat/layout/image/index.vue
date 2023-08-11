@@ -1,5 +1,9 @@
 <template>
 	<div class="h-full relative">
+		<NTabs type="segment">
+			<NTabPane name="chap1" tab="我的绘画"/>
+			<NTabPane name="chap2" tab="绘画广场"/>
+		</NTabs>
 		<NRow>
 			<NCol span="12">
 				<NStatistic label="已使用次数" :value="usedCount">
@@ -23,39 +27,57 @@
 			id="image-scroll-container"
 			style="
 		      overflow: auto;
-		      height: 450px;
+		      height: 600px;
 		      display: flex;
-		      flex-direction: column;
+		      flex-wrap: wrap;
 		      gap: 8px;
 		    "
 		>
+		<NCard v-for="(imageUrl, index) in imgUrl" :key="index" shadow="hover" style="margin-bottom: 10px;max-width: 300px;" >
 			<NImage
-				v-for="(imageUrl, index) in imgUrl"
-				:key="index"
 				width="512"
 				height="512"
 				lazy
 				:src="imageUrl"
 				:intersection-observer-options="{
-		        root: '#image-scroll-container',
-		      }"
-				style="margin-bottom: 10px;"
+				root: '#image-scroll-container',
+				}"
 			>
 				<template #placeholder>
-					<div
-						style="
-		            width: 100px;
-		            height: 100px;
-		            display: flex;
-		            align-items: center;
-		            justify-content: center;
-		            background-color: #0001;
-		          "
-					>
-						Loading
-					</div>
+				<div style="
+					width: 100px;
+					height: 100px;
+					display: flex;
+					align-items: center;
+					justify-content: center;
+					background-color: #0001;
+				">
+					Loading
+				</div>
 				</template>
 			</NImage>
+			<div style="display: flex; justify-content: end; margin-top: 8px;">
+				<span style="margin-right: 8px;">
+				<SvgIcon icon="ri:thumb-up-fill"  class="text-2xl cursor-pointer" color="#0e7a0d"/>
+				1
+				</span>
+				<span style="margin-right: 8px;">
+				<SvgIcon icon="ri:thumb-down-fill"  class="text-2xl cursor-pointer"/>
+				2
+				</span>
+				<span>
+				<SvgIcon icon="ri:star-fill"  class="text-2xl cursor-pointer"/>
+				3
+				</span>
+			</div>
+		</NCard>
+		</div>
+		<div class="pagination-wrap w-full" v-if="totalPage > 0" style="display: flex; justify-content: center; margin-top: 8px;">
+			<NPagination
+			:page="page"
+			@update:page="updatePage"
+			:page-slot="5"
+			:page-count="totalPage" />
 		</div>
 		<div class="absolute bottom-0 w-full">
 			<SubmitFooter 
@@ -75,8 +97,26 @@
 										:on-update:value="(value)=>{formData.model = value;formData.Count = 1}">
 					<NButton>{{ modelOptions.find(i => i.value === formData.model)?.label || '请选择模型' }}</NButton>
 				</NPopselect>
-				<SvgIcon icon="ri:settings-4-line" @click="showModal=true" class="text-2xl cursor-pointer"/>
-				<SvgIcon icon="ri:file-user-line" @click="history" class="text-2xl cursor-pointer"/>
+				<HoverButton @click="showModal = true">
+					<span class="text-xl text-[#4f555e] dark:text-white">
+						<NPopover trigger="hover">
+							<template #trigger>
+							<SvgIcon icon="ri:settings-4-line" />
+							</template>
+							<span>或许不想知道你的花园长得咋样</span>
+						</NPopover>
+					</span>
+				</HoverButton>
+				<HoverButton @click="history">
+					<span class="text-xl text-[#4f555e] dark:text-white">
+						<NPopover trigger="hover">
+							<template #trigger>
+							<SvgIcon icon="ri:file-user-line" />
+							</template>
+							<span>会话历史</span>
+						</NPopover>
+					</span>
+				</HoverButton>
 			</SubmitFooter>
 		</div>
 
@@ -112,14 +152,14 @@ import {
 	NModal,
 	NForm,
 	NFormItem,
-	NPopselect
+	NPopselect,NCard,NPopover,NTabs,NTabPane,NPagination
 } from "naive-ui";
-import {reactive, ref} from "vue";
+import {onMounted, reactive, ref} from "vue";
 import axios from 'axios';
 import {useAuthStoreWithout} from '@/store/modules/auth'
 import {useSignalR} from '@/views/chat/hooks/useSignalR';
 import SubmitFooter from "@/components/common/SubmitFooter/submitFooter.vue";
-import {SvgIcon} from '@/components/common'
+import {HoverButton,SvgIcon} from '@/components/common'
 import {MyImageList } from '@/api';
 import { stringify } from "querystring";
 // 定义后端接口的地址
@@ -137,6 +177,9 @@ const modelOptions: Array<{ label: string; value: string }> = [
 ];
 const showModal = ref(false)
 
+const page = ref(1);
+const pageSize = ref(10);
+const totalPage = ref(0);
 
 // const formRules = {
 // 	verifycationCode: {
@@ -171,12 +214,6 @@ const formData = reactive<SubmitDTO>({
 
 
 const submit = async () => {
-	// if (!formData.verifycationCode) {
-	// 	ms.warning('请先设置图片验证码')
-	// 	showModal.value = true
-	// 	return
-	// }
-
 	if (!connection.value) {
 		ms.warning('页面已失效，请刷新页面！');
 		return;
@@ -196,6 +233,7 @@ const submit = async () => {
 			return
 		}
 		ms.success(response.data.data);
+		totalPage.value=0;
 
 	} catch (error) {
 		console.log(`请求失败：${error}`);
@@ -213,8 +251,26 @@ const history = async () => {
       imaglist.push(m.imagUrl);
     });
     imgUrl.value = imaglist as never[];
+	page.value=1;
+	totalPage.value=Math.ceil(data.total/10);
   }
 }
-
-
+const loadPosts =async () => {
+	const { data } = await MyImageList(null,  page.value, pageSize.value);
+  if (data.items != null) {
+    let imaglist: string[] = [];
+    data.items.forEach((m: any) => {
+      imaglist.push(m.imagUrl);
+    });
+    imgUrl.value = imaglist as never[];
+	totalPage.value=Math.ceil(data.total/pageSize.value);
+  }
+};
+const updatePage = (p: number) => {
+    page.value = p;
+    loadPosts();
+};
+onMounted(() => {
+    loadPosts();
+});
 </script>
