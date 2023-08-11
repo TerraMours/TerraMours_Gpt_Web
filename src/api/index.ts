@@ -1,7 +1,6 @@
 import type {AxiosProgressEvent, GenericAbortSignal} from 'axios'
 import {post, get} from '@/utils/request'
 import {useAuthStore, useSettingStore} from '@/store'
-import { type } from 'os';
 
 export function fetchChatAPI<T = any>(
 	prompt: string,

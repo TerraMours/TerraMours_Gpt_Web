@@ -126,10 +126,10 @@
 						 label-placement="left"
 						 label-width="auto"
 						 require-mark-placement="right-hanging">
-				<NFormItem label="图片验证码" path="verifycationCode">
-					<NInput v-model:value="formData.verifycationCode"></NInput>
+				<NFormItem label="反向提示词" path="negativePrompt">
+					<NInput v-model:value="formData.negativePrompt"></NInput>
 				</NFormItem>
-				<NFormItem label="生成数量" v-show="formData.modelType !== 1">
+				<NFormItem label="生成图片数量" >
 					<NSlider v-model:value="formData.Count" :max="10" :min="1"/>
 				</NFormItem>
 			</NForm>
@@ -161,7 +161,6 @@ import {useSignalR} from '@/views/chat/hooks/useSignalR';
 import SubmitFooter from "@/components/common/SubmitFooter/submitFooter.vue";
 import {HoverButton,SvgIcon} from '@/components/common'
 import {MyImageList } from '@/api';
-import { stringify } from "querystring";
 // 定义后端接口的地址
 const apiUrl = import.meta.env.VITE_GLOB_API_URL;
 const apiBaseUrl = import.meta.env.VITE_APP_API_BASE_URL;
@@ -181,19 +180,13 @@ const page = ref(1);
 const pageSize = ref(10);
 const totalPage = ref(0);
 
-// const formRules = {
-// 	verifycationCode: {
-// 		required: true,
-// 		message: '请输入图片验证码',
-// 		trigger: 'blur'
-// 	}
-// }
+
 const ms = useMessage();
 //signalR
 const {waitingCount, connection, imgUrl} = useSignalR(apiBaseUrl + '/graphhub');
 
 type SubmitDTO = {
-	verifycationCode: string
+	negativePrompt: string
 	Prompt: string
 	modelType: number
 	connectionId: any
@@ -206,7 +199,7 @@ const formData = reactive<SubmitDTO>({
 	Prompt: "",
 	Count: 1,
 	Size: 512,
-	verifycationCode: authStore.imgKey ?? "",
+	negativePrompt: authStore.imgKey ?? "",
 	modelType: 1,
 	connectionId: null,
 	model: null
@@ -220,7 +213,7 @@ const submit = async () => {
 	}
 	formData.connectionId = connection.value?.connectionId
 	try {
-		authStore.setImgKey(formData.verifycationCode);
+		authStore.setImgKey(formData.negativePrompt);
 		//signalR
 		// 设置请求头
 		const headers = {
