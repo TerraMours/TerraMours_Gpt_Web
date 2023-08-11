@@ -74,6 +74,12 @@ export default {
     httpsProxy: 'HTTPS Proxy',
     balance: 'API Balance',
     monthlyUsage: 'Monthly Usage',
+    vipLevel: '会员等级',
+    vipExpireTime: '会员过期时间',
+    tobeVip:'会员充值',
+    imageCount:'图片剩余次数',
+    userInfo:"用户管理",
+    logout:'登出',
   },
   store: {
     siderButton: 'Prompt Store',

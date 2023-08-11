@@ -15,6 +15,7 @@ export function useChat() {
     chatStore.updateChatByUuid(uuid, index, chat)
   }
 
+	// 重置当前条目的loading状态
   const updateChatSome = (uuid: number, index: number, chat: Partial<Chat.Chat>) => {
     chatStore.updateChatSomeByUuid(uuid, index, chat)
   }

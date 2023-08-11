@@ -1,5 +1,4 @@
 <template>
-	<div class="h-full">
 		<div class="h-full dark:bg-[#24272e] transition-all" :class="[isMobile ? 'p-0' : 'p-4']">
 			<div class="h-full" :class="getMobileClass">
 				<NLayout class="z-40 transition h-full" has-sider>
@@ -28,28 +27,23 @@
 
 				</NLayout>
 			</div>
-			<Permission :visible="needPermission"/>
-			<!-- <Login :visible=true /> -->
+			<!-- <Permission :visible="needPermission"/> -->
 		</div>
-	</div>
 </template>
 
 <script setup lang='ts'>
 import {computed, ref} from 'vue'
-import {NLayout, NTabs, NTabPane, NLayoutContent, NLayoutSider} from 'naive-ui'
+import {NLayout, NTabs, NTabPane, NLayoutContent} from 'naive-ui'
 import {useRouter} from 'vue-router'
 import Sider from './sider/index.vue'
 import Helped from './helped/index.vue'
-import Permission from './Permission.vue'
+// import Permission from './Permission.vue'
 import ImageView from './image/index.vue'
 import {useBasicLayout} from '@/hooks/useBasicLayout'
-import {useAppStore, useAuthStore, useChatStore} from '@/store'
-import Login from './Login.vue'
+import { useChatStore} from '@/store'
 
 const router = useRouter()
-const appStore = useAppStore()
 const chatStore = useChatStore()
-const authStore = useAuthStore()
 
 router.replace({name: 'Chat', params: {uuid: chatStore.active}})
 
@@ -69,7 +63,6 @@ function handleTabChange(tab: string) {
 	localStorage.setItem("selectedTab", tab);
 }
 
-const needPermission = computed(() => !!authStore.session?.auth && !authStore.token)
 
 const getMobileClass = computed(() => {
 	if (isMobile.value)

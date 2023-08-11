@@ -1,10 +1,8 @@
 <script setup lang='ts'>
-import type {Ref} from 'vue'
 import {computed, onMounted, onUnmounted, ref} from 'vue'
 import {useRoute} from 'vue-router'
 import {storeToRefs} from 'pinia'
-import {NButton, useDialog, useMessage} from 'naive-ui'
-import html2canvas from 'html2canvas'
+import {NButton, NForm, NFormItem, NInput, NModal, NPopselect, useDialog, useMessage} from 'naive-ui'
 import {Message} from './components'
 import {useScroll} from './hooks/useScroll'
 import {useChat} from './hooks/useChat'
@@ -16,19 +14,25 @@ import {useBasicLayout} from '@/hooks/useBasicLayout'
 import {useChatStore, usePromptStore} from '@/store'
 import {fetchChatAPIProcess} from '@/api'
 import {t} from '@/locales'
-import SubmitFooter from "@/components/common/SubmitFooter/submitFooter.vue";
+import SubmitFooter from '@/components/common/SubmitFooter/submitFooter.vue'
+import {downloadHtml2Canvas} from "@/views/chat/hooks/useHtml2Canvas";
+// 使用复制code
+useCopyCode()
+// 添加请求终断对象
 
-let controller = new AbortController()
-
+const controller = ref(new AbortController())
+const ganNewController = () => {
+	controller.value = new AbortController()
+	return controller.value
+}
 const openLongReply = import.meta.env.VITE_GLOB_OPEN_LONG_REPLY === 'true'
-
 const route = useRoute()
 const dialog = useDialog()
 const ms = useMessage()
-
 const chatStore = useChatStore()
+// 添加PromptStore
+const promptStore = usePromptStore()
 
-useCopyCode()
 
 const {isMobile} = useBasicLayout()
 const {addChat, updateChat, updateChatSome, getChatByUuidAndIndex} = useChat()
@@ -36,20 +40,26 @@ const {scrollRef, scrollToBottom, scrollToBottomIfAtBottom} = useScroll()
 const {usingContext, toggleUsingContext} = useUsingContext()
 
 const {uuid} = route.params as { uuid: string }
-
+// 从存储中取出对应聊天数据 uuid 标识
 const dataSources = computed(() => chatStore.getChatByUuid(+uuid))
 const conversationList = computed(() => dataSources.value.filter(item => (!item.inversion && !!item.conversationOptions)))
 
 const prompt = ref<string>('')
+const modelType = ref<string>('gpt-3.5-turbo')
 const loading = ref<boolean>(false)
-const inputRef = ref<Ref | null>(null)
+const showModal = ref(false)
 
-// 添加PromptStore
-const promptStore = usePromptStore()
+const modelOptions: Array<{ label: string; value: string; length: number }> = [
+	{label: 'gpt-3.5-turbo', value: 'gpt-3.5-turbo', length: 2000},
+	{label: 'gpt-3.5-turbo-16k(会员专属)', value: 'gpt-3.5-turbo-16k', length: 1000},
+	{label: 'gpt-4(会员专属)', value: 'gpt-4', length: 2000},
+]
+// 计算每一种模式下可以输入的字符数
+const submitFooterInputCounter = computed(() => modelOptions.find(i => i.value === modelType.value)?.length || 0)
 
 // 使用storeToRefs，保证store修改后，联想部分能够重新渲染
 const {promptList: promptTemplate} = storeToRefs<any>(promptStore)
-//2023.4.10 添加上下文
+// 2023.4.10 添加上下文
 let lastOptions: Chat.ConversationRequest = {}
 // 未知原因刷新页面，loading 状态不会重置，手动重置
 dataSources.value.forEach((item, index) => {
@@ -59,40 +69,39 @@ dataSources.value.forEach((item, index) => {
 		updateChatSome(+uuid, index, {loading: false})
 })
 
-
+// 发起对话
 async function onConversation() {
-	debugger
 	let message = prompt.value
-	if (loading.value)
-		return
-
-	if (!message || message.trim() === '')
-		return
-
-	controller = new AbortController()
+	// 防止二次点击按钮重复发起
+	if (loading.value) return
+	if (!message || message.trim() === '') return
+	// 添加用户输出聊天记录
 	addChat(
 		+uuid,
 		{
 			dateTime: new Date().toLocaleString(),
 			text: message,
-			inversion: true,
+			inversion: true, // 用户询问
 			error: false,
 			conversationOptions: null,
 			requestOptions: {prompt: message, options: null},
 		},
 	)
-	scrollToBottom()
 
-	loading.value = true
-	prompt.value = ''
 
-	//2023.4.10 添加上下文
+	// 2023.4.10 添加上下文
 	// let options: Chat.ConversationRequest = {}
 	let options: Chat.ConversationRequest = lastOptions
 	const lastContext = conversationList.value[conversationList.value.length - 1]?.conversationOptions
 
-	if (lastContext && usingContext.value)
+	if (lastContext && usingContext.value) {
 		options = {...lastContext}
+	}
+
+
+	loading.value = true
+	prompt.value = ''
+
 
 	addChat(
 		+uuid,
@@ -100,7 +109,7 @@ async function onConversation() {
 			dateTime: new Date().toLocaleString(),
 			text: '',
 			loading: true,
-			inversion: false,
+			inversion: false, // gpt 回答
 			error: false,
 			conversationOptions: null,
 			requestOptions: {prompt: message, options: {...options}},
@@ -108,16 +117,16 @@ async function onConversation() {
 	)
 	scrollToBottom()
 
-
-	debugger
 	try {
-
 		let lastText = ''
 		const fetchChatAPIOnce = async () => {
-			await fetchChatAPIProcess<Chat.ConversationResponse>({
+			await fetchChatAPIProcess<string>({
+				conversationId: options.conversationId,
+				model: modelType.value,
+				modelType: 0,
 				prompt: message,
-				options,
-				signal: controller.signal,
+				// 传入signal 代表此请求可控
+				signal: ganNewController().signal,
 				onDownloadProgress: ({event}) => {
 					const xhr = event.target
 					const {responseText} = xhr
@@ -127,27 +136,27 @@ async function onConversation() {
 					if (lastIndex !== -1)
 						chunk = responseText.substring(lastIndex)
 					try {
-						const data = JSON.parse(chunk)
+						const {data} = JSON.parse(chunk)
 						updateChat(
 							+uuid,
 							dataSources.value.length - 1,
 							{
 								dateTime: new Date().toLocaleString(),
-								text: lastText + (data.text ?? ''),
+								text: lastText + (data.Message ?? ''),
 								inversion: false,
 								error: false,
 								loading: true,
-								conversationOptions: {conversationId: data.conversationId, parentMessageId: data.id},
+								conversationOptions: {conversationId: data.ConversationId, parentMessageId: data.ChatRecordId},
 								requestOptions: {prompt: message, options: {...options}},
 							},
 						)
-						//2023.4.10 添加上下文
-						if (data != null && data.conversationId != null && data.conversationId.length !== 0)
-							lastOptions = {conversationId: data.conversationId, parentMessageId: data.id}
+						// 2023.4.10 添加上下文
+						if (data.ConversationId != null && data.ConversationId.length !== 0)
+							lastOptions = {conversationId: data.ConversationId, parentMessageId: data.ChatRecordId}
 
 						if (openLongReply && data.detail.choices[0].finish_reason === 'length') {
-							options.parentMessageId = data.id
-							lastText = data.text
+							options.parentMessageId = data.ChatRecordId
+							lastText = data.Message
 							message = ''
 							return fetchChatAPIOnce()
 						}
@@ -158,13 +167,12 @@ async function onConversation() {
 					}
 				},
 			})
+			// 重置当前条目的loading状态
 			updateChatSome(+uuid, dataSources.value.length - 1, {loading: false})
 		}
-
 		await fetchChatAPIOnce()
 	} catch (error: any) {
-		//测试webapi
-		//const errorMessage = error?.message ?? t('common.wrong')
+		// 测试webapi
 		const errorMessage = error?.message ?? ''
 		if (error.message === 'canceled') {
 			updateChatSome(
@@ -177,10 +185,9 @@ async function onConversation() {
 			scrollToBottomIfAtBottom()
 			return
 		}
-
 		const currentChat = getChatByUuidAndIndex(+uuid, dataSources.value.length - 1)
-
-		if (currentChat?.text && currentChat!.text !== '') {
+		//
+		if (currentChat && currentChat?.text && currentChat!.text !== '') {
 			updateChatSome(
 				+uuid,
 				dataSources.value.length - 1,
@@ -192,7 +199,7 @@ async function onConversation() {
 			)
 			return
 		}
-
+		// 添加失败响应
 		updateChat(
 			+uuid,
 			dataSources.value.length - 1,
@@ -216,7 +223,6 @@ async function onRegenerate(index: number) {
 	if (loading.value)
 		return
 
-	controller = new AbortController()
 
 	const {requestOptions} = dataSources.value[index]
 
@@ -248,11 +254,15 @@ async function onRegenerate(index: number) {
 		const fetchChatAPIOnce = async () => {
 			await fetchChatAPIProcess<Chat.ConversationResponse>({
 				prompt: message,
-				options,
-				signal: controller.signal,
+				conversationId: options.conversationId,
+				model: 'gpt-3.5-turbo',
+				modelType: 0,
+				// options,
+				signal: ganNewController().signal,
 				onDownloadProgress: ({event}) => {
 					const xhr = event.target
 					const {responseText} = xhr
+
 					// Always process the final line
 					const lastIndex = responseText.lastIndexOf('\n', responseText.length - 2)
 					let chunk = responseText
@@ -320,10 +330,10 @@ async function onRegenerate(index: number) {
 	}
 }
 
+// 点击导出图片
 function handleExport() {
 	if (loading.value)
 		return
-
 	const d = dialog.warning({
 		title: t('chat.exportImage'),
 		content: t('chat.exportImageConfirm'),
@@ -332,22 +342,7 @@ function handleExport() {
 		onPositiveClick: async () => {
 			try {
 				d.loading = true
-				const ele = document.getElementById('image-wrapper')
-				const canvas = await html2canvas(ele as HTMLDivElement, {
-					useCORS: true,
-				})
-				const imgUrl = canvas.toDataURL('image/png')
-				const tempLink = document.createElement('a')
-				tempLink.style.display = 'none'
-				tempLink.href = imgUrl
-				tempLink.setAttribute('download', 'chat-shot.png')
-				if (typeof tempLink.download === 'undefined')
-					tempLink.setAttribute('target', '_blank')
-
-				document.body.appendChild(tempLink)
-				tempLink.click()
-				document.body.removeChild(tempLink)
-				window.URL.revokeObjectURL(imgUrl)
+				await downloadHtml2Canvas(document.getElementById('image-wrapper') as HTMLElement, {useCORS: true})
 				d.loading = false
 				ms.success(t('chat.exportSuccess'))
 				Promise.resolve()
@@ -360,6 +355,7 @@ function handleExport() {
 	})
 }
 
+// 点击删除指定记录
 function handleDelete(index: number) {
 	if (loading.value)
 		return
@@ -375,6 +371,7 @@ function handleDelete(index: number) {
 	})
 }
 
+// 删除所有记录
 function handleClear() {
 	if (loading.value)
 		return
@@ -390,10 +387,10 @@ function handleClear() {
 	})
 }
 
-
+// 结束请求
 function handleStop() {
 	if (loading.value) {
-		controller.abort()
+		controller.value.abort()
 		loading.value = false
 	}
 }
@@ -423,25 +420,17 @@ const renderOption = (option: { label: string }) => {
 	return []
 }
 
-const placeholder = computed(() => {
-	if (isMobile.value)
-		return t('chat.placeholderMobile')
-	return t('chat.placeholder')
-})
-
 const buttonDisabled = computed(() => {
 	return loading.value || !prompt.value || prompt.value.trim() === ''
 })
 
 onMounted(() => {
 	scrollToBottom()
-	if (inputRef.value && !isMobile.value)
-		inputRef.value?.focus()
 })
 
 onUnmounted(() => {
 	if (loading.value)
-		controller.abort()
+		controller.value.abort()
 })
 </script>
 
@@ -510,26 +499,51 @@ onUnmounted(() => {
 				</div>
 			</div>
 		</main>
-		<submit-footer @submit="onConversation"
-									 v-model="prompt"
-									 :search-options="searchOptions"
-									 :render-option="renderOption"
-									 :buttonDisabled="buttonDisabled">
+		<SubmitFooter
+			v-model="prompt"
+			show-token
+			:search-options="searchOptions"
+			:render-option="renderOption"
+			:button-disabled="buttonDisabled"
+			:counter="submitFooterInputCounter"
+			@submit="onConversation"
+		>
+			<SvgIcon icon="ri:file-user-line" class="text-2xl cursor-pointer" @click="showModal = true"/>
 			<HoverButton @click="handleClear">
-			            <span class="text-xl text-[#4f555e] dark:text-white">
-			              <SvgIcon icon="ri:delete-bin-line"/>
-			            </span>
+        <span class="text-xl text-[#4f555e] dark:text-white">
+          <SvgIcon icon="ri:delete-bin-line"/>
+        </span>
 			</HoverButton>
 			<HoverButton v-if="!isMobile" @click="handleExport">
-			            <span class="text-xl text-[#4f555e] dark:text-white">
-			              <SvgIcon icon="ri:download-2-line"/>
-			            </span>
+        <span class="text-xl text-[#4f555e] dark:text-white">
+          <SvgIcon icon="ri:download-2-line"/>
+        </span>
 			</HoverButton>
 			<HoverButton v-if="!isMobile" @click="toggleUsingContext">
-			            <span class="text-xl" :class="{ 'text-[#4b9e5f]': usingContext, 'text-[#a8071a]': !usingContext }">
-			              <SvgIcon icon="ri:chat-history-line"/>
-			            </span>
+        <span class="text-xl" :class="{ 'text-[#4b9e5f]': usingContext, 'text-[#a8071a]': !usingContext }">
+          <SvgIcon icon="ri:chat-history-line"/>
+        </span>
 			</HoverButton>
-		</submit-footer>
+		</SubmitFooter>
+		<NModal v-model:show="showModal" style="width: 90%; max-width: 600px;" preset="card">
+			<NForm
+				ref="formRef"
+				label-placement="left"
+				label-width="auto"
+				require-mark-placement="right-hanging"
+			>
+				<NFormItem label="系统提示词" path="verifycationCode">
+					<NInput/>
+				</NFormItem>
+				<NFormItem label="模型选择">
+					<NPopselect
+						v-model:value="modelType" :options="modelOptions" trigger="click"
+						:on-update:value="(value) => modelType = value"
+					>
+						<NButton>{{ modelOptions.find(i => i.value === modelType)?.label || '请选择模型' }}</NButton>
+					</NPopselect>
+				</NFormItem>
+			</NForm>
+		</NModal>
 	</div>
 </template>

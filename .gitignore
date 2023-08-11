@@ -34,3 +34,7 @@ coverage
 .husky/commit-msg
 .husky/commit-msg
 .husky/pre-commit
+
+
+*env
+yucc.md
