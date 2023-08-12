@@ -22,7 +22,7 @@ export function fetchChatConfig<T = any>() {
 
 export function fetchGetUser<T = any>() {
 	return get<T>({
-		url: '/v1/User/GetUser',
+		url: '/api/v1/User/GetUser',
 	})
 }
 
@@ -58,7 +58,7 @@ export function fetchChatAPIProcess<T = any>(
 	}
 
 	return post<T>({
-		url: '/v1/Chat/ChatCompletionStream',
+		url: '/api/v1/Chat/ChatCompletionStream',
 		data,
 		signal: params.signal,
 		onDownloadProgress: params.onDownloadProgress,
@@ -84,14 +84,14 @@ export function fetchVerify<T>(token: string) {
 
 export function fetchEmailCode(userEmail: string) {
 	return post<boolean>({
-		url: '/v1/Email/CreateCheckCode',
+		url: '/api/v1/Email/CreateCheckCode',
 		data: {userEmail},
 	})
 }
 
 export function fetchRegister(userAccount: string, userPassword: string, repeatPassword: string, checkCode: string) {
 	return post<string>({
-		url: '/v1/Login/Register',
+		url: '/api/v1/Login/Register',
 		data: {userAccount, userPassword, repeatPassword, checkCode},
 	})
 }
@@ -103,7 +103,7 @@ export function generateImage<T>(Prompt: string,
 																 Count: number,
 																 Size: number) {
 	return post<T>({
-		url: '/v1/Image/GenerateGraph',
+		url: '/api/v1/Image/GenerateGraph',
 		data: {Prompt, Count, modelType, connectionId, Size},
 	})
 }
@@ -116,7 +116,7 @@ type LoginRes = {
 
 export function login(data: { userAccount: string, userPassword: string }) {
 	return post<LoginRes>({
-		url: '/v1/Login/Login',
+		url: '/api/v1/Login/Login',
 		data,
 	})
 }
@@ -127,7 +127,7 @@ type PagedRes<T> = {
 	page: number
 	pageSize: number
 }
-type ImageRes={
+export type ImageRes={
 	imageRecordId:number
 	prompt:string|null
 	pranslatePrompt:string|null
@@ -136,10 +136,53 @@ type ImageRes={
 	collectCount:number
 	likeCount:number
 	createDate:Date
+	isPublic:boolean|null
 }
 export function MyImageList(queryString: string |null, pageIndex: number, pageSize: number) {
 	return post<PagedRes<ImageRes>>({
-		url: '/v1/Image/MyImageList',
+		url: '/api/v1/Image/MyImageList',
 		data:{queryString,pageIndex,pageSize},
+	})
+}
+/**
+ * 共享图片
+ * @param imageRecordId 
+ * @param isPublic 
+ * @returns 
+ */
+export function ShareImage(imageRecordId: number,isPublic: boolean){
+	return get<boolean>({
+		url:'/api/v1/Image/ShareImage',
+		data:{imageRecordId,isPublic}
+	})
+}
+/**
+ * 图片广场
+ * @param queryString 
+ * @param pageIndex 
+ * @param pageSize 
+ * @returns 
+ */
+export function ShareImageList(queryString: string |null, pageIndex: number, pageSize: number){
+	return post<PagedRes<ImageRes>>({
+		url:'/api/v1/Image/ShareImageList',
+		data:{queryString,pageIndex,pageSize},
+	})
+}
+
+export type SubmitDTO = {
+	negativePrompt: string
+	Prompt: string
+	modelType: number
+	connectionId: any
+	Count: number
+	Size: number,
+	model: string | null
+}
+
+export function GenerateGraph(submitDTO: SubmitDTO){
+	return post<string>({
+		url:'/api/v1/Image/GenerateGraph',
+		data:submitDTO
 	})
 }

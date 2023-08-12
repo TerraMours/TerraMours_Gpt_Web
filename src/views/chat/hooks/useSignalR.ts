@@ -1,13 +1,13 @@
 import { onUnmounted, ref } from 'vue';
 import { useMessage } from 'naive-ui'
 import { HubConnectionBuilder, HubConnection } from '@microsoft/signalr';
-
+import {ImageRes} from '@/api';
 export  function useSignalR(
   hubUrl: string
 ) {
   const connection = ref<HubConnection | null>(null);
   const waitingCount = ref(0);
-  const imgUrl = ref([]);
+  const imgUrl = ref<ImageRes[]>([]);
   const ms = useMessage();
   const start = async () => {
     if (connection.value && connection.value.state === 'Connected') return;
