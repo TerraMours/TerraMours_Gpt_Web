@@ -1,9 +1,5 @@
 <template>
 	<div class="h-full relative">
-		<NTabs type="segment">
-			<NTabPane name="chap1" tab="我的绘画"/>
-			<NTabPane name="chap2" tab="绘画广场"/>
-		</NTabs>
 		<NRow>
 			<NCol span="12">
 				<NStatistic label="已使用次数" :value="usedCount">
@@ -16,13 +12,10 @@
 				<NStatistic label="当前队列等待任务数" :value="waitingCount"></NStatistic>
 			</NCol>
 		</NRow>
-
-		<!--		<div v-show="formData.modelType !== 1">-->
-		<!--			<span style="font-size: 24px;">返回图片数量1-10，本站不保存图片，需要请立即下载。</span>-->
-		<!--			<NSpace vertical>-->
-		<!--				<NSlider v-model:value="formData.Count" :max="10" :min="1"/>-->
-		<!--			</NSpace>-->
-		<!--		</div>-->
+		<NTabs type="segment" @update:value="history">
+			<NTabPane name="chap1" tab="我的绘画"/>
+			<NTabPane name="chap2" tab="绘画广场"/>
+		</NTabs>
 		<div
 			id="image-scroll-container"
 			style="
@@ -33,42 +26,57 @@
 		      gap: 8px;
 		    "
 		>
-		<NCard v-for="(imageUrl, index) in imgUrl" :key="index" shadow="hover" style="margin-bottom: 10px;max-width: 300px;" >
-			<NImage
-				width="512"
-				height="512"
-				lazy
-				:src="imageUrl"
-				:intersection-observer-options="{
-				root: '#image-scroll-container',
-				}"
-			>
-				<template #placeholder>
-				<div style="
-					width: 100px;
-					height: 100px;
-					display: flex;
-					align-items: center;
-					justify-content: center;
-					background-color: #0001;
-				">
-					Loading
+		<NCard v-for="(imageUrl, index) in imgUrl" :key="index" shadow="hover" style="margin-bottom: 10px;max-width: 300px;" hoverable>
+			<template #cover>
+				<NImage
+					width="512"
+					height="512"
+					lazy
+					:src="imageUrl.imagUrl"
+					:intersection-observer-options="{
+					root: '#image-scroll-container',
+					}"
+				>
+					<template #placeholder>
+					<div style="
+						width: 100px;
+						height: 100px;
+						display: flex;
+						align-items: center;
+						justify-content: center;
+						background-color: #0001;
+					">
+						Loading
+					</div>
+					</template>
+				</NImage>
+			</template>
+			<div style="display: flex; justify-content:space-between; margin-top: 16px;">
+				<NSwitch v-if="imageUrl.isPublic !== null" v-model:value="imageUrl.isPublic" @update:value="PublicChange(imageUrl.imageRecordId,imageUrl.isPublic)">
+					<template #checked>
+					公开
+					</template>
+					<template #unchecked>
+					私有
+					</template>
+				</NSwitch>
+				<div style="display: flex; justify-content: end;">
+					<NBadge v-model:value="imageUrl.likeCount" style="margin-right: 8px;">
+						<NAvatar>
+							<SvgIcon icon="ri:thumb-up-fill"  class="text-2xl cursor-pointer" color="yellow"/>
+						</NAvatar>
+					</NBadge>
+					<NBadge v-model:value="imageUrl.likeCount" style="margin-right: 8px;">
+						<NAvatar>
+							<SvgIcon icon="ri:thumb-down-fill"  class="text-2xl cursor-pointer" color="yellow"/>
+						</NAvatar>
+					</NBadge>
+					<NBadge value="1">
+						<NAvatar>
+							<SvgIcon icon="ri:star-fill"  class="text-2xl cursor-pointer"/>
+						</NAvatar>
+					</NBadge>
 				</div>
-				</template>
-			</NImage>
-			<div style="display: flex; justify-content: end; margin-top: 8px;">
-				<span style="margin-right: 8px;">
-				<SvgIcon icon="ri:thumb-up-fill"  class="text-2xl cursor-pointer" color="#0e7a0d"/>
-				1
-				</span>
-				<span style="margin-right: 8px;">
-				<SvgIcon icon="ri:thumb-down-fill"  class="text-2xl cursor-pointer"/>
-				2
-				</span>
-				<span>
-				<SvgIcon icon="ri:star-fill"  class="text-2xl cursor-pointer"/>
-				3
-				</span>
 			</div>
 		</NCard>
 		</div>
@@ -107,7 +115,7 @@
 						</NPopover>
 					</span>
 				</HoverButton>
-				<HoverButton @click="history">
+				<!-- <HoverButton @click="history">
 					<span class="text-xl text-[#4f555e] dark:text-white">
 						<NPopover trigger="hover">
 							<template #trigger>
@@ -116,7 +124,7 @@
 							<span>会话历史</span>
 						</NPopover>
 					</span>
-				</HoverButton>
+				</HoverButton> -->
 			</SubmitFooter>
 		</div>
 
@@ -152,18 +160,16 @@ import {
 	NModal,
 	NForm,
 	NFormItem,
-	NPopselect,NCard,NPopover,NTabs,NTabPane,NPagination
+	NPopselect,NCard,NPopover,NTabs,NTabPane,NPagination,NSwitch,NBadge,NAvatar
 } from "naive-ui";
 import {onMounted, reactive, ref} from "vue";
-import axios from 'axios';
 import {useAuthStoreWithout} from '@/store/modules/auth'
 import {useSignalR} from '@/views/chat/hooks/useSignalR';
 import SubmitFooter from "@/components/common/SubmitFooter/submitFooter.vue";
 import {HoverButton,SvgIcon} from '@/components/common'
-import {MyImageList } from '@/api';
+import {MyImageList ,SubmitDTO,GenerateGraph,ShareImage,ShareImageList} from '@/api';
 // 定义后端接口的地址
 const apiUrl = import.meta.env.VITE_GLOB_API_URL;
-const apiBaseUrl = import.meta.env.VITE_APP_API_BASE_URL;
 const authStore = useAuthStoreWithout();
 const usedCount = ref(0);//已生成图片数量
 const modelTypeOptions: Array<{ label: string; value: number }> = [
@@ -180,20 +186,10 @@ const page = ref(1);
 const pageSize = ref(10);
 const totalPage = ref(0);
 
-
 const ms = useMessage();
 //signalR
-const {waitingCount, connection, imgUrl} = useSignalR(apiBaseUrl + '/graphhub');
+const {waitingCount, connection, imgUrl} = useSignalR(apiUrl + '/graphhub');
 
-type SubmitDTO = {
-	negativePrompt: string
-	Prompt: string
-	modelType: number
-	connectionId: any
-	Count: number
-	Size: number,
-	model: string | null
-}
 
 const formData = reactive<SubmitDTO>({
 	Prompt: "",
@@ -212,50 +208,43 @@ const submit = async () => {
 		return;
 	}
 	formData.connectionId = connection.value?.connectionId
-	try {
-		authStore.setImgKey(formData.negativePrompt);
-		//signalR
-		// 设置请求头
-		const headers = {
-		'Authorization': 'Bearer ' + authStore.token,
-		'Content-Type': 'application/json'
-		};
-		const response = await axios.post(apiUrl + '/v1/Image/GenerateGraph', formData,{headers});
-		if (response.data.code === 500) {
-			ms.error(response.data.message ?? 'error')
-			return
-		}
-		ms.success(response.data.data);
-		totalPage.value=0;
-
-	} catch (error) {
-		console.log(`请求失败：${error}`);
-		ms.error('报错拉！：' + error);
-	}
+	const { data } = await GenerateGraph(formData);
+	ms.success(data);
 	console.log("提交的参数：", formData); // 在控制台输出提交的参数
 };
 
-const history = async () => {
+const history = async (tabName:string) => {
+	let response;
+	switch (tabName) {
+          case 'chap1':
+		  response=await MyImageList(null, 1, 10);
+		  break;
+          case 'chap2':
+          default:
+		  response=await ShareImageList(null, 1, 10);
+		  break;
+        }
   // 设置请求头
-  const { data } = await MyImageList(null, 1, 10);
+  const { data } = response;
   if (data.items != null) {
-    let imaglist: string[] = [];
-    data.items.forEach((m: any) => {
-      imaglist.push(m.imagUrl);
-    });
-    imgUrl.value = imaglist as never[];
+    imgUrl.value = data.items;
 	page.value=1;
-	totalPage.value=Math.ceil(data.total/10);
+	totalPage.value=Math.ceil(data.total/pageSize.value);
   }
 }
+
+const PublicChange =async(imageRecordId:number,isPublic: boolean)=>{
+	const { data } = await ShareImage(imageRecordId,isPublic);
+	if(data){
+		ms.success(`操作成功`);
+	}
+}
+
+
 const loadPosts =async () => {
 	const { data } = await MyImageList(null,  page.value, pageSize.value);
   if (data.items != null) {
-    let imaglist: string[] = [];
-    data.items.forEach((m: any) => {
-      imaglist.push(m.imagUrl);
-    });
-    imgUrl.value = imaglist as never[];
+    imgUrl.value = data.items;
 	totalPage.value=Math.ceil(data.total/pageSize.value);
   }
 };

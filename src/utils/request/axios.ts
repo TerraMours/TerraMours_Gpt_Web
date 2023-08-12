@@ -27,7 +27,7 @@ service.interceptors.request.use(
 		const token = useAuthStore().token
 		if (token) {
 			config.headers.Authorization = `Bearer ${token}`
-		} else if (!config.url?.includes('/v1/Login/Login')) {
+		} else if (!config.url?.includes('/api/v1/Login/Login')) {
 			openDialog()
 			return Promise.reject(new Error('当前状态未登录'));
 		}
