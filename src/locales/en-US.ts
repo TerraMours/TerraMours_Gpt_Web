@@ -83,7 +83,7 @@ export default {
   },
   store: {
     siderButton: 'Prompt Store',
-    buyAccount: 'buy Account',
+    buyAccount: 'buy VIP',
     local: 'Local',
     online: 'Online',
     title: 'Title',

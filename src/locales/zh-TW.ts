@@ -83,7 +83,7 @@ export default {
   },
   store: {
     siderButton: '提示詞商店',
-    buyAccount: '賬號購買',
+    buyAccount: '會員開通',
     local: '本機',
     online: '線上',
     title: '標題',

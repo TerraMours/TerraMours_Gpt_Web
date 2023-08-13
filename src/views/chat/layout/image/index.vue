@@ -26,7 +26,7 @@
 		      gap: 8px;
 		    "
 		>
-		<NCard v-for="(imageUrl, index) in imgUrl" :key="index" shadow="hover" style="margin-bottom: 10px;max-width: 300px;" hoverable>
+		<NCard v-for="(imageUrl, index) in imgUrl" :key="index" shadow="hover" style="margin-bottom: 10px;max-width: 300px;" hoverable >
 			<template #cover>
 				<NImage
 					width="512"

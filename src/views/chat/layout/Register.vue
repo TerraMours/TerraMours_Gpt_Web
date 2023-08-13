@@ -89,7 +89,7 @@ interface Props {
 	visible: boolean
 }
 
-const backgroundImageURL = 'src/assets/login_bg.png'
+const backgroundImageURL = '/login_bg.png'
 defineProps<Props>()
 const formRef = ref<HTMLElement & FormInst>();
 
