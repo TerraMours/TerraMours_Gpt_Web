@@ -20,7 +20,7 @@ const localState = getLocalState().userInfo
 const saveMe = ref(Boolean(localState.userAccount && localState.userPassword))
 
 
-const backgroundImageURL = 'src/assets/login_bg.png'
+const backgroundImageURL = '/login_bg.png'
 const formRef = ref<HTMLElement & FormInst>()
 
 interface LoginDTO {
