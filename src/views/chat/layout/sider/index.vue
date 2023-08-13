@@ -6,14 +6,14 @@ import List from './List.vue'
 import Footer from './Footer.vue'
 import { useAppStore, useChatStore } from '@/store'
 import { useBasicLayout } from '@/hooks/useBasicLayout'
-import { PromptStore } from '@/components/common'
+import { PromptStore,Goods } from '@/components/common'
 
 const appStore = useAppStore()
 const chatStore = useChatStore()
 
 const { isMobile } = useBasicLayout()
 const show = ref(false)
-
+const showgood = ref(false)
 const collapsed = computed(() => appStore.siderCollapsed)
 
 function handleAdd() {
@@ -21,9 +21,9 @@ function handleAdd() {
   if (isMobile.value)
     appStore.setSiderCollapsed(true)
 }
-function goToGithub() {
-  window.open("https://sp.terramours.site/", "_blank")
-}
+// function goToGithub() {
+//   window.open("https://sp.terramours.site/", "_blank")
+// }
 
 function handleUpdateCollapsed() {
   appStore.setSiderCollapsed(!collapsed.value)
@@ -83,7 +83,7 @@ watch(
           <List />
         </div>
         <div class="p-4">
-          <NButton block @click="goToGithub">
+          <NButton block @click="showgood = true">
             {{ $t('store.buyAccount') }}
           </NButton>
         </div>
@@ -102,4 +102,5 @@ watch(
     <div v-show="!collapsed" class="fixed inset-0 z-40 bg-black/40" @click="handleUpdateCollapsed" />
   </template>
   <PromptStore v-model:visible="show" />
+  <Goods v-model:visible="showgood" />
 </template>
