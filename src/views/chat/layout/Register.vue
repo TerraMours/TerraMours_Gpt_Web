@@ -16,7 +16,7 @@
 								<SvgIcon icon="ant-design:user-outlined"/>
 							</template>
 						</NInput>
-                        <NButton size="large" :disabled="isCounting" :loading="smsLoading" @click="handleSmsCode">{{ label }}</NButton>
+                        <NButton size="large" :disabled="isCounting" type="primary" :loading="smsLoading" @click="handleSmsCode">{{ label }}</NButton>
 					</NFormItem>
 					<NFormItem path="pwd">
 						<NInput type="password" show-password-on="click" placeholder="请输入密码" v-model:value="model.pwd">

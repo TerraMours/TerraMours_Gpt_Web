@@ -12,7 +12,7 @@ export default function useSmsCode() {
     const countingLabel = (second: number) => `${second}秒后重新获取`;
     const label = computed(() => {
       let text = initLabel;
-      if (loading) {
+      if (loading && loading.value ==true) {
         text = '';
       }
       if (isCounting.value) {
