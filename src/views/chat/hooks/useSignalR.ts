@@ -34,7 +34,7 @@ export  function useSignalR(
           ms.error(newImgUrl);
         }else{
           ms.success('图片生成成功。');
-        imgUrl.value = newImgUrl;
+        imgUrl.value = newImgUrl.map((imagUrl: string) => ({ imagUrl }))as ImageRes[];;
         }
       });
      })

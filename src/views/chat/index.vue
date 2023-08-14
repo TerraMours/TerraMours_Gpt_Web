@@ -2,7 +2,7 @@
 import {computed, onMounted, onUnmounted, ref} from 'vue'
 import {useRoute} from 'vue-router'
 import {storeToRefs} from 'pinia'
-import {NButton, NForm, NFormItem, NInput, NModal, NPopselect, useDialog, useMessage} from 'naive-ui'
+import {NButton, NForm, NFormItem, NInput, NModal, NPopselect, useDialog, useMessage,NSwitch} from 'naive-ui'
 import {Message} from './components'
 import {useScroll} from './hooks/useScroll'
 import {useChat} from './hooks/useChat'
@@ -125,6 +125,7 @@ async function onConversation() {
 				model: modelType.value,
 				modelType: 0,
 				prompt: message,
+				contextCount:usingContext.value==false?0:null,
 				// 传入signal 代表此请求可控
 				signal: ganNewController().signal,
 				onDownloadProgress: ({event}) => {
@@ -257,7 +258,7 @@ async function onRegenerate(index: number) {
 				conversationId: options.conversationId,
 				model: 'gpt-3.5-turbo',
 				modelType: 0,
-				// options,
+				contextCount:usingContext.value==false?0:null,
 				signal: ganNewController().signal,
 				onDownloadProgress: ({event}) => {
 					const xhr = event.target
