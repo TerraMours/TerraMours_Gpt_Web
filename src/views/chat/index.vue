@@ -2,7 +2,7 @@
 import {computed, onMounted, onUnmounted, ref} from 'vue'
 import {useRoute} from 'vue-router'
 import {storeToRefs} from 'pinia'
-import {NButton, NForm, NFormItem, NInput, NModal, NPopselect, useDialog, useMessage,NSwitch} from 'naive-ui'
+import {NButton, NForm, NFormItem, NInput, NModal, NPopselect, useDialog, useMessage} from 'naive-ui'
 import {Message} from './components'
 import {useScroll} from './hooks/useScroll'
 import {useChat} from './hooks/useChat'
