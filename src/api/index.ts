@@ -32,7 +32,8 @@ export function fetchChatAPIProcess<T = any>(
 		// 会话ID
 		conversationId?: number
 		model: string
-		modelType: number
+		modelType: number,
+		contextCount:number|null,
 		// options?: { conversationId?: string; parentMessageId?: string }
 		signal?: GenericAbortSignal
 		onDownloadProgress?: (progressEvent: AxiosProgressEvent) => void
@@ -45,6 +46,7 @@ export function fetchChatAPIProcess<T = any>(
 		conversationId: params.conversationId,
 		model: params.model,
 		modelType: params.modelType,
+		contextCount:params.contextCount,
 		systemMessage: settingStore.systemMessage || '',
 	}
 
