@@ -162,7 +162,7 @@ import {
 	NFormItem,
 	NPopselect,NCard,NPopover,NTabs,NTabPane,NPagination,NSwitch,NBadge,NAvatar
 } from "naive-ui";
-import {onMounted, reactive, ref} from "vue";
+import {onMounted, reactive, ref,onBeforeMount} from "vue";
 import {useAuthStoreWithout} from '@/store/modules/auth'
 import {useSignalR} from '@/views/chat/hooks/useSignalR';
 import SubmitFooter from "@/components/common/SubmitFooter/submitFooter.vue";
@@ -188,7 +188,7 @@ const totalPage = ref(0);
 
 const ms = useMessage();
 //signalR
-const {waitingCount, connection, imgUrl} = useSignalR(apiUrl + '/graphhub');
+const {waitingCount, connection, imgUrl,start} = useSignalR(apiUrl + '/graphhub');
 
 
 const formData = reactive<SubmitDTO>({
@@ -255,4 +255,8 @@ const updatePage = (p: number) => {
 onMounted(() => {
     loadPosts();
 });
+onBeforeMount(() => {
+      // 在组件加载时调用 start 方法
+      start();
+    });
 </script>

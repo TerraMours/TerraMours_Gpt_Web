@@ -188,3 +188,36 @@ export function GenerateGraph(submitDTO: SubmitDTO){
 		data:submitDTO
 	})
 }
+
+export type Product= {
+    id: number;
+    name: string;
+    description: string;
+    price: number;
+    discount: number;
+    categoryId: number;
+    stock: number | null;
+	url:string|null;
+  }
+/**
+ * 商品列表
+ * @returns 
+ */
+export function GetAllProductList(){
+	return get<Product[]>({
+		url:'/api/v1/Product/GetAllProductList',
+		data:null
+	})
+}
+
+export type AlipayResponse={
+	out_trade_no:string;
+	qr_code:string;
+}
+
+export function PreCreate(Name:string,Price:number,Description:string,ProductId:number){
+	return post<AlipayResponse>({
+		url:'/api/v1/AliPay/PreCreate',
+		data:{Name,Price,Description},
+	})
+}

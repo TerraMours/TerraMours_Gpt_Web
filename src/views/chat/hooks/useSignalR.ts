@@ -58,7 +58,7 @@ export  function useSignalR(
       .withAutomaticReconnect().build();
   };
 
-  start();
+
 
   onUnmounted(() => {
     if (connection.value?.state === 'Connected') connection.value!.stop();
