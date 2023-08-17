@@ -14,7 +14,7 @@
                 <template #prefix>￥</template>
               </NStatistic>
               <div style="display: flex; justify-content: flex-end; margin-top: 24px;">
-                <NButton strong round size="large" type="primary"  @click="showModal = true">
+                <NButton strong round size="large" type="primary"  @click="payModel(good)">
                   <template #icon>
                     <SvgIcon class="text-xl" icon="ri:link" />
                   </template>
@@ -30,10 +30,10 @@
    <NModal v-model:show="showModal" style="width: 90%; max-width: 600px; " preset="card">
         <NH1 style="text-align: center">扫码支付</NH1>
               <NH3 style="text-align: center">支付方式：请打开APP扫码支付！有效期5分钟</NH3>
-              <div style="display: flex;justify-content: center;align-items: center;">
-                  <NImage  src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMgAAADICAIAAAAiOjnJAAAACXBIWXMAAA7EAAAOxAGVKw4bAAAEAklEQVR4nO3dzW6bKxRA0Ta67//IUYeVPEDlwub7yVrT1I5TbaETgvHv7+/vX7Db19UvgHcSFglhkRAWCWGREBYJYZEQFglhkRAWCWGREBYJYZEQFglhkRAWCWGREBYJYZEQFglhkRAWCWGREBYJYZEQFon/tj/j19ehWKcuB/h4VR+PnXrN48d2z9wprlmwYpEQFglhkRAWif3D+4eNg+F4mB0P0WMrvwdMfXXjaL/iwK8FViwSwiIhLBLCIpEP7x+6cXX8j8dfnRr8V3beN07NVw3+/8iKRUJYJIRFQlgkTg/vnY3D7NTu+cos/+KPBbFikRAWCWGREBaJ9wzvK2Pyyiy/8cz7m/zQH5uasEgIi4SwSJwe3ru95qkxeWWmXnnsxo34m+/aW7FICIuEsEgIi0Q+vF+19bzxNMtN9taftYn/pNfKgwiLhLBICIvE75tv4P5vx97PubJ7/uIj8FYsEsIiISwSwiJx63veN+5xTz3VVW9YveqrBSsWCWGREBYJYZE4vfN+1Z0w3WzbXew+5W47/lYsEsIiISwSwiJx8W0zGzfEj72Mlae6yWl6O+88lbBICIuEsEjs33nfOJBu/GSlsamnOrbVfuwPDwUrFglhkRAWCWGRuNexmZVpfeXXgptcibNi5T+2YMUiISwSwiIhLBIPvm2mG1dXNuJXtstXOPPOjyAsEsIiISwSp+95XznO0b2tdMrKp0EdO0Q0fqxjMzyVsEgIi4SwSDx4533KxuM6Y1Pj+bHtcmfeeQlhkRAWCWGReNIbVrtBeMrGHfCNnHnnRxAWCWGREBaJfHgfu8k7No9tah+7m/7yz2yyYpEQFglhkRAWifzM+3hs7M68b3zD6tjGPw8c+wEdm+GphEVCWCSEReL0hzRNzfJTjx3rjtxcddvM+Pu65513EhYJYZEQFonTZ96nHjt2kxPx97wy/qrDS39fwPZnhF/CIiIsEsIi8Z7bZjZOzY+4BOaqn/cfWbFICIuEsEgIi8T+YzPHtp67I+FjG98puvKNprhthpcQFglhkRAWidNvWF1xz1sYu1l+6ie62wWWViwSwiIhLBLCInH6DavdWexjQ/TGvfUPx97OeuCvI1YsEsIiISwSwiJxeng/ZmW7fOofd7ddrryM8WMPsGKREBYJYZEQFonXDu9jUwP4xjH5Jtv0rorkqYRFQlgkhEXi4nvej32j7m6WqQ3xY5dQXn6BpRWLhLBICIuEsEjk97x3upvNjx0Yv+pjYA+wYpEQFglhkRAWiffc886tWLFICIuEsEgIi4SwSAiLhLBICIuEsEgIi4SwSAiLhLBICIuEsEgIi4SwSAiLhLBICIuEsEgIi4SwSAiLhLBICIuEsEj8AY6mLJa9C+atAAAAAElFTkSuQmCC"/>
-              </div>
-              <NH3 style="text-align: center">需要支付金额：7</NH3>
+                <div style="display: flex;justify-content: center;align-items: center;">
+                    <vue-qrcode :color="{ dark: '#000', light: '#FFF' }" type="image/webp" :quality="1" :value="totpUrl" class="w-48 h-48 !max-w-[none]" />
+                </div>
+              <NH3 style="text-align: center">需要支付金额：{{ goodPrice }}</NH3>
       </NModal>
       </div>
   </template>
@@ -41,7 +41,8 @@
   import { NModal,NTabs,NTabPane,NBadge,NCard,NButton,NImage,NNumberAnimation,NStatistic,NH3,NH1} from 'naive-ui'
   import { computed,ref,onMounted } from 'vue'
   import { SvgIcon } from '..'
-  import {GetAllProductList,Product} from '@/api';
+  import {GetAllProductList,Product,PreCreate} from '@/api'
+  import VueQrcode from 'vue-qrcode'
   
   interface Props {
     visible: boolean
@@ -58,6 +59,9 @@
   const showModal = ref(false)
   const goodList=ref<Product[]>([]);
   
+  const goodPrice=ref(0)
+  const totpUrl=ref('')
+
   const show = computed({
     get() {
       return props.visible
@@ -85,6 +89,16 @@
     const { data } =await GetAllProductList();
     if (data != null) {
       goodList.value=data;
+    }
+  }
+
+  const payModel=async(good:Product)=>{
+    goodPrice.value=good.price;
+    showModal.value=true;
+
+    const { data } =await PreCreate(good.name,good.price,good.description,good.categoryId);
+    if (data != null) {
+      totpUrl.value=data.qr_code;
     }
   }
   onMounted(() => {

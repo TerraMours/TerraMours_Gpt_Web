@@ -209,3 +209,15 @@ export function GetAllProductList(){
 		data:null
 	})
 }
+
+export type AlipayResponse={
+	out_trade_no:string;
+	qr_code:string;
+}
+
+export function PreCreate(Name:string,Price:number,Description:string,ProductId:number){
+	return post<AlipayResponse>({
+		url:'/api/v1/AliPay/PreCreate',
+		data:{Name,Price,Description},
+	})
+}

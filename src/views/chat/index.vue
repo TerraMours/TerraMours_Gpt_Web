@@ -526,7 +526,7 @@ onUnmounted(() => {
         </span>
 			</HoverButton>
 		</SubmitFooter>
-		<NModal v-model:show="showModal" style="width: 90%; max-width: 600px;" preset="card">
+		<NModal v-model:show="showModal" style="width: 90%; max-width: 600px;" preset="card" >
 			<NForm
 				ref="formRef"
 				label-placement="left"
