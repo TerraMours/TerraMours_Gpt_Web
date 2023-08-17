@@ -188,3 +188,24 @@ export function GenerateGraph(submitDTO: SubmitDTO){
 		data:submitDTO
 	})
 }
+
+export type Product= {
+    id: number;
+    name: string;
+    description: string;
+    price: number;
+    discount: number;
+    categoryId: number;
+    stock: number | null;
+	url:string|null;
+  }
+/**
+ * 商品列表
+ * @returns 
+ */
+export function GetAllProductList(){
+	return get<Product[]>({
+		url:'/api/v1/Product/GetAllProductList',
+		data:null
+	})
+}
