@@ -52,7 +52,7 @@
 <script lang="ts" setup>
 import { computed,ref,onMounted } from 'vue'
 import {useUserStore } from '@/store'
-import { NButton, NInput, NGradientText, NTime, useMessage,NSpin } from 'naive-ui'
+import { NButton, NInput, NGradientText, NTime,NSpin } from 'naive-ui'
 import { useAuthStoreWithout } from '@/store/modules/auth'
 import { t } from '@/locales'
 import { fetchGetUser } from '@/api'
@@ -68,19 +68,16 @@ interface UserInfo {
 const config = ref<UserInfo>()
 
 const userStore = useUserStore()
-const ms = useMessage()
 const loading = ref(false)
 const computedConfig = computed(() => config.value || {});
 function handleReset() {
   userStore.resetUserInfo()
   const authStore = useAuthStoreWithout()
   authStore.removeToken()
-  ms.success(t('common.success'))
   window.location.reload()
 }
 function updateUserInfo(options: Partial<UserInfo>) {
   userStore.updateUserInfo(options)
-  ms.success(t('common.success'))
 }
 
 async function fetchUser() {

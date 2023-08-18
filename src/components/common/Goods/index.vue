@@ -38,14 +38,20 @@
       </div>
   </template>
   <script setup lang='ts'>
-  import { NModal,NTabs,NTabPane,NBadge,NCard,NButton,NImage,NNumberAnimation,NStatistic,NH3,NH1} from 'naive-ui'
+  import { NModal,NTabs,NTabPane,NBadge,NCard,NButton,NImage,NNumberAnimation,NStatistic,NH3,NH1,useMessage} from 'naive-ui'
   import { computed,ref,onMounted } from 'vue'
   import { SvgIcon } from '..'
   import {GetAllProductList,Product,PreCreate} from '@/api'
   import VueQrcode from 'vue-qrcode'
-  
+  import { HubConnectionBuilder, HubConnection } from '@microsoft/signalr';
+  const apiUrl = import.meta.env.VITE_GLOB_API_URL;
+
   interface Props {
     visible: boolean
+  }
+  interface AlipayTradeQueryReq{
+    out_trade_no:string,
+    trade_no:string|null
   }
   
   interface Emit {
@@ -61,7 +67,9 @@
   
   const goodPrice=ref(0)
   const totpUrl=ref('')
-
+  const ms = useMessage();
+  //signalr
+  const connection = ref<HubConnection | null>(null);
   const show = computed({
     get() {
       return props.visible
@@ -101,7 +109,18 @@
       totpUrl.value=data.qr_code;
     }
   }
-  onMounted(() => {
+
+  const signalConnect=async()=>{
+    connection.value=new HubConnectionBuilder().withUrl(apiUrl+ '/Hubs/QueryPaymentStatus')
+    .withAutomaticReconnect().build();
+    await connection.value.start().then(console.log('SignalR Connected.'));
+  }
+  onMounted( async() => {
   getAllProductList();
+  await signalConnect();
+  connection.value?.on('QueryPaymentStatus',data=>{
+    ms.success(`操作成功`);
+    showModal.value=false;
+  });
   })
   </script>
