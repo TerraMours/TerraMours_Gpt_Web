@@ -21,11 +21,10 @@ const theme = computed(() => appStore.theme)
 
 const userInfo = computed(() => userStore.userInfo)
 
-const avatar = ref(userInfo.value.avatar ?? '')
+const headImageUrl = ref(userInfo.value.headImageUrl ?? '')
 
-const name = ref(userInfo.value.name ?? '')
+const userName = ref(userInfo.value.userName ?? '')
 
-const description = ref(userInfo.value.description ?? '')
 
 const language = computed({
   get() {
@@ -129,29 +128,23 @@ function handleImportButtonClick(): void {
       <div class="flex items-center space-x-4">
         <span class="flex-shrink-0 w-[100px]">{{ $t('setting.avatarLink') }}</span>
         <div class="flex-1">
-          <NInput v-model:value="avatar" placeholder="" />
+          <NInput v-model:value="headImageUrl" placeholder="" />
         </div>
-        <NButton size="tiny" text type="primary" @click="updateUserInfo({ avatar })">
+        <NButton size="tiny" text type="primary" @click="updateUserInfo({ headImageUrl })">
           {{ $t('common.save') }}
         </NButton>
       </div>
       <div class="flex items-center space-x-4">
         <span class="flex-shrink-0 w-[100px]">{{ $t('setting.name') }}</span>
         <div class="w-[200px]">
-          <NInput v-model:value="name" placeholder="" />
+          <NInput v-model:value="userName" placeholder="" />
         </div>
-        <NButton size="tiny" text type="primary" @click="updateUserInfo({ name })">
+        <NButton size="tiny" text type="primary" @click="updateUserInfo({ userName })">
           {{ $t('common.save') }}
         </NButton>
       </div>
       <div class="flex items-center space-x-4">
         <span class="flex-shrink-0 w-[100px]">{{ $t('setting.description') }}</span>
-        <div class="flex-1">
-          <NInput v-model:value="description" placeholder="" />
-        </div>
-        <NButton size="tiny" text type="primary" @click="updateUserInfo({ description })">
-          {{ $t('common.save') }}
-        </NButton>
       </div>
       <div
         class="flex items-center space-x-4"

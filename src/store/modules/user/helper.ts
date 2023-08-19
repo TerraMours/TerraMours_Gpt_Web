@@ -3,8 +3,6 @@ import {ss} from '@/utils/storage'
 const LOCAL_NAME = 'userStorage'
 
 export interface UserInfo {
-	avatar: string
-	name: string
 	description: string
 	userName?: string// 用户名
 	roleId?: number// 角色
@@ -14,6 +12,7 @@ export interface UserInfo {
 	imageCount?: string//剩余图片使用次数
 	userAccount?: string//账号（用于记住密码选项）
 	userPassword?: string // 密码 （用于记住密码选项）
+	balance?: number//用户余额
 }
 
 export interface UserState {
@@ -23,8 +22,8 @@ export interface UserState {
 export function defaultSetting(): UserState {
 	return {
 		userInfo: {
-			avatar: 'https://avatars.githubusercontent.com/u/43564692?s=96&v=4',
-			name: 'firstsaofan',
+			headImageUrl: 'https://avatars.githubusercontent.com/u/43564692?s=96&v=4',
+			userName: 'terramours',
 			description: '最新gpt地址： <a href="https://ai.terramours.site/" class="text-blue-500" target="_blank" >ai.terramours.site</a>',
 		},
 	}

@@ -28,9 +28,12 @@ function http<T = any>(
     if (res.data.code === 200 || typeof res.data === 'string')
       return res.data
 
-    if (res.data.code === 500) {
+    if (res.data.code === 405) {
       authStore.removeToken()
       window.location.reload()
+    }
+    if (res.data.code === 500) {
+      throw new Error(res?.data.message || 'Error')
     }
     //webapi
     return Promise.reject(res.data)

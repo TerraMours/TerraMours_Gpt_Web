@@ -15,19 +15,18 @@
                 </div>
             </div>
             <div class="flex items-center space-x-4">
-                <span class="flex-shrink-0 w-[100px]">{{ $t('setting.vipLevel') }}</span>
+                <span class="flex-shrink-0 w-[100px]">{{ $t('setting.balance') }}</span>
                 <div class="flex-1">
-                    <NGradientText
-                        gradient="linear-gradient(90deg, red 0%, green 50%, blue 100%)"
-                    >
-                        尊贵的VIP用户
-                    </NGradientText>
+                    <NStatistic tabular-nums>
+                <NNumberAnimation :from="0.0" :to="computedConfig.balance" :precision="1"/>
+                <template #prefix>￥</template>
+              </NStatistic>
                 </div>
-                <NButton size="small" @click="handleReset" color="#8a2be2">
+                <NButton style="display: none;" size="small" @click="handleReset" color="#8a2be2">
                 {{ $t('setting.tobeVip') }}
                 </NButton>
             </div>
-            <div class="flex items-center space-x-4">
+            <div class="flex items-center space-x-4" style="display: none;">
                 <span class="flex-shrink-0 w-[100px]">{{ $t('setting.vipExpireTime') }}</span>
                 <div class="flex-1">
                     <NTime :time="0" type="date" v-model:value="computedConfig.vipExpireTime"/>
@@ -52,9 +51,8 @@
 <script lang="ts" setup>
 import { computed,ref,onMounted } from 'vue'
 import {useUserStore } from '@/store'
-import { NButton, NInput, NGradientText, NTime, useMessage,NSpin } from 'naive-ui'
+import { NButton, NInput, NTime,NSpin,NNumberAnimation,NStatistic } from 'naive-ui'
 import { useAuthStoreWithout } from '@/store/modules/auth'
-import { t } from '@/locales'
 import { fetchGetUser } from '@/api'
 
 interface UserInfo {
@@ -64,23 +62,21 @@ interface UserInfo {
     vipLevel?: string//vip等级
     vipExpireTime?: string//vip过期时间
     imageCount?: string//剩余图片使用次数
+    balance?: number//用户余额
 }
 const config = ref<UserInfo>()
 
 const userStore = useUserStore()
-const ms = useMessage()
 const loading = ref(false)
 const computedConfig = computed(() => config.value || {});
 function handleReset() {
   userStore.resetUserInfo()
   const authStore = useAuthStoreWithout()
   authStore.removeToken()
-  ms.success(t('common.success'))
   window.location.reload()
 }
 function updateUserInfo(options: Partial<UserInfo>) {
   userStore.updateUserInfo(options)
-  ms.success(t('common.success'))
 }
 
 async function fetchUser() {
