@@ -7,10 +7,10 @@
           <NBadge :value="good.discount" style="margin-right: 10px;max-width: 200px; justify-content: space-between;">
             <NCard :title="good.name" shadow="hover" hoverable style="max-width: 300px;">
               <template #cover>
-                <NImage width="200" height="200" :src="(good.url as string)" :intersection-observer-options="{ root: '#image-scroll-container' }"></NImage>
+                <NImage style="display: none;" width="200" height="200" :src="(good.url as string)" :intersection-observer-options="{ root: '#image-scroll-container' }"></NImage>
               </template>
               <NStatistic tabular-nums>
-                <NNumberAnimation :from="0" :to="good.price" />
+                <NNumberAnimation :from="0.0" :to="good.price" :precision="1"/>
                 <template #prefix>￥</template>
               </NStatistic>
               <div style="display: flex; justify-content: flex-end; margin-top: 24px;">
@@ -29,7 +29,7 @@
   </NModal>
    <NModal v-model:show="showModal" style="width: 90%; max-width: 600px; " preset="card">
         <NH1 style="text-align: center">扫码支付</NH1>
-              <NH3 style="text-align: center">支付方式：请打开APP扫码支付！有效期5分钟</NH3>
+              <NH3 style="text-align: center">支付方式：请打开APP扫码支付！有效期3分钟</NH3>
                 <div style="display: flex;justify-content: center;align-items: center;">
                     <vue-qrcode :color="{ dark: '#000', light: '#FFF' }" type="image/webp" :quality="1" :value="totpUrl" class="w-48 h-48 !max-w-[none]" />
                 </div>
@@ -39,7 +39,7 @@
   </template>
   <script setup lang='ts'>
   import { NModal,NTabs,NTabPane,NBadge,NCard,NButton,NImage,NNumberAnimation,NStatistic,NH3,NH1,useMessage} from 'naive-ui'
-  import { computed,ref,onMounted } from 'vue'
+  import { computed,ref,onMounted,reactive } from 'vue'
   import { SvgIcon } from '..'
   import {GetAllProductList,Product,PreCreate} from '@/api'
   import VueQrcode from 'vue-qrcode'
@@ -48,10 +48,6 @@
 
   interface Props {
     visible: boolean
-  }
-  interface AlipayTradeQueryReq{
-    out_trade_no:string,
-    trade_no:string|null
   }
   
   interface Emit {
@@ -67,6 +63,7 @@
   
   const goodPrice=ref(0)
   const totpUrl=ref('')
+  const currentOderId=ref('')
   const ms = useMessage();
   //signalr
   const connection = ref<HubConnection | null>(null);
@@ -107,20 +104,33 @@
     const { data } =await PreCreate(good.name,good.price,good.description,good.categoryId);
     if (data != null) {
       totpUrl.value=data.qr_code;
+      currentOderId.value=data.out_trade_no;
+      const req = reactive({ outTradeNo: data.out_trade_no, TradeNo: null });
+      connection.value?.invoke('QueryPaymentStatus',req);
     }
   }
-
+ 
   const signalConnect=async()=>{
     connection.value=new HubConnectionBuilder().withUrl(apiUrl+ '/Hubs/QueryPaymentStatus')
     .withAutomaticReconnect().build();
-    await connection.value.start().then(console.log('SignalR Connected.'));
+    await connection.value.start();
   }
   onMounted( async() => {
   getAllProductList();
   await signalConnect();
-  connection.value?.on('QueryPaymentStatus',data=>{
-    ms.success(`操作成功`);
-    showModal.value=false;
+  connection.value?.on('QueryPaymentStatus',(data: { outTradeNo: string; tradeStatus: string })=>{
+    console.log(data);
+    if(data.outTradeNo=currentOderId.value){
+      if(data.tradeStatus=="TRADE_SUCCESS"){
+      ms.success(`充值成功！成功成功充值￥`+goodPrice.value);
+      }
+      else
+      {
+        ms.warning(`未付款交易超时关闭.请重新购买`);
+      }
+      showModal.value=false;
+    }
+    
   });
   })
   </script>
