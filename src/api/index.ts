@@ -214,10 +214,24 @@ export type AlipayResponse={
 	out_trade_no:string;
 	qr_code:string;
 }
-
+/**商品购买 */
 export function PreCreate(Name:string,Price:number,Description:string,ProductId:number){
 	return post<AlipayResponse>({
 		url:'/api/v1/AliPay/PreCreate',
 		data:{Name,Price,Description},
+	})
+}
+
+export type PromptOptionRes={
+	promptId:number;
+	act:string;
+	prompt:string;
+	usedCount:number;
+}
+/**系统提示词列表 */
+export function PromptOptionList(PageIndex:number,PageSize:number,QueryString:string|null){
+	return post<PagedRes<PromptOptionRes>>({
+		url:'/api/v1/Chat/PromptOptionList',
+		data:{PageSize,PageIndex,QueryString},
 	})
 }

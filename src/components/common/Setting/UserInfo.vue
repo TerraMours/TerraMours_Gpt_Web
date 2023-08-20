@@ -18,7 +18,7 @@
                 <span class="flex-shrink-0 w-[100px]">{{ $t('setting.balance') }}</span>
                 <div class="flex-1">
                     <NStatistic tabular-nums>
-                <NNumberAnimation :from="0.0" :to="computedConfig.balance" :precision="1"/>
+                <NNumberAnimation :from="0.0" :to="computedConfig.balance" :precision="3"/>
                 <template #prefix>￥</template>
               </NStatistic>
                 </div>

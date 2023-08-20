@@ -21,7 +21,7 @@
 									</NTabPane>
 								</NTabs>
 							</NLayoutContent>
-							<Helped/>
+							<!-- <Helped/> -->
 						</NLayout>
 					</NLayoutContent>
 
@@ -36,7 +36,7 @@ import {computed, ref} from 'vue'
 import {NLayout, NTabs, NTabPane, NLayoutContent} from 'naive-ui'
 import {useRouter} from 'vue-router'
 import Sider from './sider/index.vue'
-import Helped from './helped/index.vue'
+// import Helped from './helped/index.vue'
 // import Permission from './Permission.vue'
 import ImageView from './image/index.vue'
 import {useBasicLayout} from '@/hooks/useBasicLayout'

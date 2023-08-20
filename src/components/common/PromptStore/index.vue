@@ -7,6 +7,7 @@ import { SvgIcon } from '..'
 import { usePromptStore } from '@/store'
 import { useBasicLayout } from '@/hooks/useBasicLayout'
 import { t } from '@/locales'
+// import {PromptOptionList,PromptOptionRes} from '@/api';
 
 interface DataProps {
   renderKey: string

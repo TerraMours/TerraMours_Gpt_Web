@@ -1,13 +1,6 @@
 <template>
 	<div class="h-full relative">
 		<NRow>
-			<NCol span="12">
-				<NStatistic label="已使用次数" :value="usedCount">
-					<template #suffix>
-						/ 100
-					</template>
-				</NStatistic>
-			</NCol>
 			<NCol :span="12">
 				<NStatistic label="当前队列等待任务数" :value="waitingCount"></NStatistic>
 			</NCol>
@@ -171,7 +164,6 @@ import {MyImageList ,SubmitDTO,GenerateGraph,ShareImage,ShareImageList} from '@/
 // 定义后端接口的地址
 const apiUrl = import.meta.env.VITE_GLOB_API_URL;
 const authStore = useAuthStoreWithout();
-const usedCount = ref(0);//已生成图片数量
 const modelTypeOptions: Array<{ label: string; value: number }> = [
 	{label: 'CHATGPT', value: 0},
 	{label: 'SD', value: 1},

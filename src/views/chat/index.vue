@@ -2,7 +2,7 @@
 import {computed, onMounted, onUnmounted, ref} from 'vue'
 import {useRoute} from 'vue-router'
 import {storeToRefs} from 'pinia'
-import {NButton, NForm, NFormItem, NInput, NModal, NPopselect, useDialog, useMessage} from 'naive-ui'
+import {NButton, NForm, NFormItem, NInput, NModal, NPopselect, useDialog, useMessage,NPopover} from 'naive-ui'
 import {Message} from './components'
 import {useScroll} from './hooks/useScroll'
 import {useChat} from './hooks/useChat'
@@ -51,8 +51,8 @@ const showModal = ref(false)
 
 const modelOptions: Array<{ label: string; value: string; length: number }> = [
 	{label: 'gpt-3.5-turbo', value: 'gpt-3.5-turbo', length: 2000},
-	{label: 'gpt-3.5-turbo-16k(会员专属)', value: 'gpt-3.5-turbo-16k', length: 1000},
-	{label: 'gpt-4(会员专属)', value: 'gpt-4', length: 2000},
+	{label: 'gpt-3.5-turbo-16k(会员专属)', value: 'gpt-3.5-turbo-16k', length: 4000},
+	{label: 'gpt-4(会员专属)', value: 'gpt-4', length: 4000},
 ]
 // 计算每一种模式下可以输入的字符数
 const submitFooterInputCounter = computed(() => modelOptions.find(i => i.value === modelType.value)?.length || 0)
@@ -456,22 +456,7 @@ onUnmounted(() => {
 							<span>QQ群：814880639 </span>
 						</div>
 						<div class="flex items-center justify-center mt-4 text-center text-neutral-300">
-							<span>方便第一时间反应使用问题以及更新说明公告</span>
-						</div>
-						<div class="flex items-center justify-center mt-4 text-center text-neutral-300">
-							<span>站点说明：免费用户每天可提问100次,收费用户：不限量</span>
-						</div>
-						<div class="flex items-center justify-center mt-4 text-center text-neutral-300">
-							<span>收费用户点击左下角购买账号选择商品购买即可</span>
-						</div>
-						<div class="flex items-center justify-center mt-4 text-center text-neutral-300">
-							<span>Todo:</span>
-						</div>
-						<div class="flex items-center justify-center mt-4 text-center text-neutral-300">
-							<span>1.接下来会做gpt4以及生图功能。</span>
-						</div>
-						<div class="flex items-center justify-center mt-4 text-center text-neutral-300">
-							<span>2.对接Azure openai等</span>
+							<span>方便获取第一手更新说明和优惠信息</span>
 						</div>
 					</template>
 					<template v-else>
@@ -509,7 +494,16 @@ onUnmounted(() => {
 			:counter="submitFooterInputCounter"
 			@submit="onConversation"
 		>
-			<SvgIcon icon="ri:file-user-line" class="text-2xl cursor-pointer" @click="showModal = true"/>
+		<HoverButton v-if="!isMobile" @click="showModal = true">
+				<span class="text-xl text-[#4f555e] dark:text-white">
+						<NPopover trigger="hover">
+							<template #trigger>
+								<SvgIcon class="text-2xl cursor-pointer" icon="ri:file-user-line"/>
+							</template>
+							<span>聊天设置</span>
+						</NPopover>
+					</span>
+			</HoverButton>
 			<HoverButton @click="handleClear">
         <span class="text-xl text-[#4f555e] dark:text-white">
           <SvgIcon icon="ri:delete-bin-line"/>
@@ -521,9 +515,14 @@ onUnmounted(() => {
         </span>
 			</HoverButton>
 			<HoverButton v-if="!isMobile" @click="toggleUsingContext">
-        <span class="text-xl" :class="{ 'text-[#4b9e5f]': usingContext, 'text-[#a8071a]': !usingContext }">
-          <SvgIcon icon="ri:chat-history-line"/>
-        </span>
+				<span class="text-xl" :class="{ 'text-[#4b9e5f]': usingContext, 'text-[#a8071a]': !usingContext }">
+						<NPopover trigger="hover">
+							<template #trigger>
+								<SvgIcon icon="ri:chat-history-line"/>
+							</template>
+							<span>是否包含上文</span>
+						</NPopover>
+					</span>
 			</HoverButton>
 		</SubmitFooter>
 		<NModal v-model:show="showModal" style="width: 90%; max-width: 600px;" preset="card" >
