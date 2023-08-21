@@ -3,7 +3,7 @@ import { computed, ref } from 'vue'
 import { NModal, NTabPane, NTabs } from 'naive-ui'
 import General from './General.vue'
 import Advanced from './Advanced.vue'
-import About from './About.vue'
+// import About from './About.vue'
 import UserInfo from './UserInfo.vue'
 import { useAuthStore } from '@/store'
 import { SvgIcon } from '@/components/common'
@@ -49,7 +49,7 @@ const show = computed({
         </NTabPane>
         <NTabPane name="General" tab="General">
           <template #tab>
-            <SvgIcon class="text-lg" icon="ri:file-user-line" />
+            <SvgIcon class="text-lg" icon="ri:list-settings-line" />
             <span class="ml-2">{{ $t('setting.general') }}</span>
           </template>
           <div class="min-h-[100px]">
@@ -65,13 +65,13 @@ const show = computed({
             <Advanced />
           </div>
         </NTabPane>
-        <NTabPane name="Config" tab="Config">
+        <!-- <NTabPane name="Config" tab="Config">
           <template #tab>
             <SvgIcon class="text-lg" icon="ri:list-settings-line" />
             <span class="ml-2">{{ $t('setting.config') }}</span>
           </template>
           <About />
-        </NTabPane>
+        </NTabPane> -->
       </NTabs>
     </div>
   </NModal>

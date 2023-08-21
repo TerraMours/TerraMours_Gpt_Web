@@ -125,27 +125,6 @@ function handleImportButtonClick(): void {
 <template>
   <div class="p-4 space-y-5 min-h-[200px]">
     <div class="space-y-6">
-      <div class="flex items-center space-x-4">
-        <span class="flex-shrink-0 w-[100px]">{{ $t('setting.avatarLink') }}</span>
-        <div class="flex-1">
-          <NInput v-model:value="headImageUrl" placeholder="" />
-        </div>
-        <NButton size="tiny" text type="primary" @click="updateUserInfo({ headImageUrl })">
-          {{ $t('common.save') }}
-        </NButton>
-      </div>
-      <div class="flex items-center space-x-4">
-        <span class="flex-shrink-0 w-[100px]">{{ $t('setting.name') }}</span>
-        <div class="w-[200px]">
-          <NInput v-model:value="userName" placeholder="" />
-        </div>
-        <NButton size="tiny" text type="primary" @click="updateUserInfo({ userName })">
-          {{ $t('common.save') }}
-        </NButton>
-      </div>
-      <div class="flex items-center space-x-4">
-        <span class="flex-shrink-0 w-[100px]">{{ $t('setting.description') }}</span>
-      </div>
       <div
         class="flex items-center space-x-4"
         :class="isMobile && 'items-start'"
@@ -207,12 +186,6 @@ function handleImportButtonClick(): void {
             @update-value="value => appStore.setLanguage(value)"
           />
         </div>
-      </div>
-      <div class="flex items-center space-x-4">
-        <span class="flex-shrink-0 w-[100px]">{{ $t('setting.resetUserInfo') }}</span>
-        <NButton size="small" @click="handleReset">
-          {{ $t('common.reset') }}
-        </NButton>
       </div>
     </div>
   </div>
