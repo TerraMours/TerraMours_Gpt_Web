@@ -1,29 +1,20 @@
 <script lang="ts" setup>
-import { computed, ref } from 'vue'
-import { NButton, NInput, NPopconfirm, NSelect, useMessage } from 'naive-ui'
+import { computed } from 'vue'
+import { NButton, NPopconfirm, NSelect, useMessage } from 'naive-ui'
 import type { Language, Theme } from '@/store/modules/app/helper'
 import { SvgIcon } from '@/components/common'
-import { useAppStore, useUserStore } from '@/store'
-import type { UserInfo } from '@/store/modules/user/helper'
+import { useAppStore } from '@/store'
 import { getCurrentDate } from '@/utils/functions'
 import { useBasicLayout } from '@/hooks/useBasicLayout'
-import { useAuthStoreWithout } from '@/store/modules/auth'
 import { t } from '@/locales'
 
 const appStore = useAppStore()
-const userStore = useUserStore()
 
 const { isMobile } = useBasicLayout()
 
 const ms = useMessage()
 
 const theme = computed(() => appStore.theme)
-
-const userInfo = computed(() => userStore.userInfo)
-
-const headImageUrl = ref(userInfo.value.headImageUrl ?? '')
-
-const userName = ref(userInfo.value.userName ?? '')
 
 
 const language = computed({
@@ -58,19 +49,6 @@ const languageOptions: { label: string; key: Language; value: Language }[] = [
   { label: '繁體中文', key: 'zh-TW', value: 'zh-TW' },
   { label: 'English', key: 'en-US', value: 'en-US' },
 ]
-
-function updateUserInfo(options: Partial<UserInfo>) {
-  userStore.updateUserInfo(options)
-  ms.success(t('common.success'))
-}
-
-function handleReset() {
-  userStore.resetUserInfo()
-  const authStore = useAuthStoreWithout()
-  authStore.removeToken()
-  ms.success(t('common.success'))
-  window.location.reload()
-}
 
 function exportData(): void {
   const date = getCurrentDate()

@@ -69,7 +69,7 @@ const config = ref<UserInfo>()
   const ms = useMessage();
 const userStore = useUserStore()
 const loading = ref(false)
-const computedConfig = computed(() => config.value || {});
+const computedConfig = computed(() => config.value || {} as UserInfo);
 function handleReset() {
   userStore.resetUserInfo()
   const authStore = useAuthStoreWithout()
