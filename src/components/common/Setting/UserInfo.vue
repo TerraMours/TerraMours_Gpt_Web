@@ -33,7 +33,7 @@
                 </div>
             </div>
             <div class="flex items-center space-x-4">
-                <NButton size="small" @click="handleReset" type="success">
+                <NButton size="small" @click="UpdateUser" type="success">
                 {{ $t('common.save') }}
                 </NButton>
                 <div class="flex-1">
@@ -51,12 +51,13 @@
 <script lang="ts" setup>
 import { computed,ref,onMounted } from 'vue'
 import {useUserStore } from '@/store'
-import { NButton, NInput, NTime,NSpin,NNumberAnimation,NStatistic } from 'naive-ui'
+import { NButton, NInput, NTime,NSpin,NNumberAnimation,NStatistic,useMessage } from 'naive-ui'
 import { useAuthStoreWithout } from '@/store/modules/auth'
-import { fetchGetUser } from '@/api'
+import { fetchGetUser,fetchUpdateUser } from '@/api'
 
 interface UserInfo {
-    userName?: string// 用户名
+    userId:number //id
+    userName: string// 用户名
     roleId?: number// 角色
     headImageUrl?: string//头像url
     vipLevel?: string//vip等级
@@ -65,7 +66,7 @@ interface UserInfo {
     balance?: number//用户余额
 }
 const config = ref<UserInfo>()
-
+  const ms = useMessage();
 const userStore = useUserStore()
 const loading = ref(false)
 const computedConfig = computed(() => config.value || {});
@@ -89,6 +90,21 @@ async function fetchUser() {
   finally {
     loading.value = false
   }
+}
+
+async function UpdateUser() {
+  if(config.value ==null){
+    ms.error('获取用户失败');
+    return;
+  }
+    const { data } = await fetchUpdateUser(config.value.userId,config.value.userName,config.value?.headImageUrl)
+    if(data){
+      ms.success('保存成功');
+    }
+    else{
+      ms.error('保存失败');
+    }
+
 }
 
 onMounted(() => {

@@ -26,6 +26,13 @@ export function fetchGetUser<T = any>() {
 	})
 }
 
+export function fetchUpdateUser(userId:number,userName:string,headImageUrl:string |undefined) {
+	return post<boolean>({
+		url: '/api/v1/User/UpdateUser',
+		data: {userId, userName,headImageUrl},
+	})
+}
+
 export function fetchChatAPIProcess<T = any>(
 	params: {
 		prompt: string
