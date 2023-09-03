@@ -5,7 +5,7 @@
 				<NStatistic label="当前队列等待任务数" :value="waitingCount"></NStatistic>
 			</NCol>
 		</NRow>
-		<NTabs type="segment" @update:value="history">
+		<NTabs type="segment" @update:value="history" v-model:value="selectedTab">
 			<NTabPane name="chap1" tab="我的绘画"/>
 			<NTabPane name="chap2" tab="绘画广场"/>
 		</NTabs>
@@ -53,15 +53,15 @@
 					私有
 					</template>
 				</NSwitch>
-				<div style="display: flex; justify-content: end;">
+				<div style="display: none; justify-content: end;">
 					<NBadge v-model:value="imageUrl.likeCount" style="margin-right: 8px;">
 						<NAvatar>
-							<SvgIcon icon="ri:thumb-up-fill"  class="text-2xl cursor-pointer" color="yellow"/>
+							<SvgIcon icon="ri:thumb-up-fill"  class="text-2xl cursor-pointer" @click="changeBoolean(imageUrl)" :color="{ 'yellow': imageUrl.islike, '': !imageUrl.islike }" />
 						</NAvatar>
 					</NBadge>
 					<NBadge v-model:value="imageUrl.likeCount" style="margin-right: 8px;">
 						<NAvatar>
-							<SvgIcon icon="ri:thumb-down-fill"  class="text-2xl cursor-pointer" color="yellow"/>
+							<SvgIcon icon="ri:thumb-down-fill"  class="text-2xl cursor-pointer" color=""/>
 						</NAvatar>
 					</NBadge>
 					<NBadge value="1">
@@ -172,6 +172,7 @@ const modelOptions: Array<{ label: string; value: string }> = [
 	{label: '二次元', value: '二次元'},
 	{label: '真人', value: '真人'},
 ];
+const selectedTab = ref("chap1");
 const showModal = ref(false)
 
 const page = ref(1);
@@ -234,7 +235,18 @@ const PublicChange =async(imageRecordId:number,isPublic: boolean)=>{
 
 
 const loadPosts =async () => {
-	const { data } = await MyImageList(null,  page.value, pageSize.value);
+	let response;
+	switch (selectedTab.value) {
+          case 'chap1':
+		  response=await MyImageList(null, page.value, 10);
+		  break;
+          case 'chap2':
+          default:
+		  response=await ShareImageList(null, page.value, 10);
+		  break;
+        }
+  // 设置请求头
+  const { data } = response;
   if (data.items != null) {
     imgUrl.value = data.items;
 	totalPage.value=Math.ceil(data.total/pageSize.value);
@@ -244,6 +256,16 @@ const updatePage = (p: number) => {
     page.value = p;
     loadPosts();
 };
+
+
+const changeBoolean=(imageUrl:any)=>{
+	if(imageUrl.islike==null){
+		imageUrl.islike=true;
+	}
+	else{
+		imageUrl.islike=!imageUrl.islike;
+	}
+}
 onMounted(() => {
     loadPosts();
 });
