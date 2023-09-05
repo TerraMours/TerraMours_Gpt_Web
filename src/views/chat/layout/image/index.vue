@@ -81,22 +81,22 @@
 			:page-count="totalPage" />
 		</div>
 		<div class="absolute bottom-0 w-full">
-			<SubmitFooter 
-			v-model="formData.Prompt" 
-			placeholder="请输入图片描述词" 
-			@submit="submit" 
-			:search-options="[]" 
-			:render-option=null 
+			<SubmitFooter
+			v-model="formData.Prompt"
+			placeholder="请输入图片描述词"
+			@submit="submit"
+			:search-options="[]"
+			:render-option=null
 			:button-disabled="false"
 			:showToken=false
 			:counter="500">
 				<NPopselect v-model:value="formData.modelType" :options="modelTypeOptions" trigger="click"
 										:on-update:value="(value)=>{formData.modelType = value;formData.Count = 1}">
-					<NButton>{{ modelTypeOptions.find(i => i.value === formData.modelType)?.label || '请选择模型' }}</NButton>
+					<NButton>{{ modelTypeOptions.find(i => i.value === formData.modelType)?.label || '二次元' }}</NButton>
 				</NPopselect>
 				<NPopselect v-model:value="formData.model" :options="modelOptions" trigger="click"
 										:on-update:value="(value)=>{formData.model = value;formData.Count = 1}">
-					<NButton>{{ modelOptions.find(i => i.value === formData.model)?.label || '请选择模型' }}</NButton>
+					<NButton>{{ modelOptions.find(i => i.value === formData.model)?.label || '二次元' }}</NButton>
 				</NPopselect>
 				<HoverButton @click="showModal = true">
 					<span class="text-xl text-[#4f555e] dark:text-white">
