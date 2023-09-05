@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import { getToken, removeToken, setToken,getImgKey,setImgKey } from './helper'
+import { getImgKey, getToken, removeToken, setImgKey, setToken } from './helper'
 import { store } from '@/store'
 import { fetchSession } from '@/api'
 
@@ -17,7 +17,7 @@ export interface AuthState {
 export const useAuthStore = defineStore('auth-store', {
   state: (): AuthState => ({
     token: getToken(),
-    imgKey:getImgKey(),
+    imgKey: getImgKey(),
     session: null,
   }),
   getters: {
@@ -47,10 +47,10 @@ export const useAuthStore = defineStore('auth-store', {
       this.token = undefined
       removeToken()
     },
-    setImgKey(imgKey: string){
-      this.imgKey=imgKey
+    setImgKey(imgKey: string) {
+      this.imgKey = imgKey
       setImgKey(imgKey)
-    }
+    },
   },
 })
 
