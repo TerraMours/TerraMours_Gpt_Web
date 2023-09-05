@@ -10,7 +10,7 @@ interface UserInfo {
   userId: number // id
   userName: string// 用户名
   roleId?: number// 角色
-  headImageUrl: string// 头像url
+  headImageUrl: string | null | undefined// 头像url
   vipLevel?: string// vip等级
   vipExpireTime?: string// vip过期时间
   imageCount?: string// 剩余图片使用次数

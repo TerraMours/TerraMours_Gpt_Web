@@ -26,7 +26,7 @@ export function fetchGetUser<T = any>() {
   })
 }
 
-export function fetchUpdateUser(userId: number, userName: string, headImageUrl: string | undefined) {
+export function fetchUpdateUser(userId: number, userName: string, headImageUrl: string | null | undefined) {
   return post<boolean>({
     url: '/api/v1/User/UpdateUser',
     data: { userId, userName, headImageUrl },
