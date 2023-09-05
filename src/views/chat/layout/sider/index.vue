@@ -102,5 +102,5 @@ watch(
     <div v-show="!collapsed" class="fixed inset-0 z-40 bg-black/40" @click="handleUpdateCollapsed" />
   </template>
   <PromptStore v-model:visible="show" />
-  <Goods v-model:visible="showgood" />
+  <Goods v-if="showgood" v-model:visible="showgood" />
 </template>

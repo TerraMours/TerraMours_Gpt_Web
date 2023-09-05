@@ -69,14 +69,11 @@ const handleEnter = (event: KeyboardEvent) => {
 							@focus="handleFocus"
 							@blur="handleBlur"
 							@keypress="handleEnter"
-							:maxlength="counter"
 							show-count
 						>
-							<template #count="{ value }">
+							<template #count="">
 								<NSpace :size="[2,0]">
-									<span v-if="showToken">token : {{ countTokens(autoValue) }}</span>
-									<span style="color:#e1e1e1 !important;"   v-if="showToken">|</span>
-									<span>{{ value.length }} / {{ counter }}</span>
+									<span>token : {{ countTokens(autoValue) }}</span>
 								</NSpace>
 							</template>
 						</NInput>
