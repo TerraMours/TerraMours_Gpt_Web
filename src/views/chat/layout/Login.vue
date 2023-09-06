@@ -62,6 +62,7 @@ const loginHandle = () => {
     loading.value = false
     if (loginRes.code === 200) {
       // 记住密码
+      userStore.refreshUserInfo()
       userStore.updateUserInfo(Object.assign({}, formData, saveMe.value ? {} : { userPassword: '' }))
       store.setToken(loginRes.data.token)
       message.success('登录成功！')

@@ -37,7 +37,6 @@ const handleFinish = ({ file, event }: { file: UploadFileInfo; event?: ProgressE
 }
 
 function handleReset() {
-  userStore.resetUserInfo()
   const authStore = useAuthStoreWithout()
   authStore.removeToken()
   window.location.reload()
@@ -144,9 +143,6 @@ onMounted(() => {
               </template>
             </NStatistic>
           </div>
-          <NButton style="display: none;" size="small" color="#8a2be2" @click="handleReset">
-            {{ $t('setting.tobeVip') }}
-          </NButton>
         </div>
 
         <div class="flex items-center space-x-4">
