@@ -95,7 +95,7 @@ watch(
         </div>
 
       </main>
-      <Footer />
+      <Footer @openStore="showgood = true"/>
     </div>
   </NLayoutSider>
   <template v-if="isMobile">

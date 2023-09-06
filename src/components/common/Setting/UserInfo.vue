@@ -1,18 +1,23 @@
 <script lang="ts" setup>
 import { computed, onMounted, ref } from 'vue'
 import type { UploadFileInfo } from 'naive-ui'
-import { NButton, NInput, NNumberAnimation, NSpin, NStatistic, NTime, NUpload, useMessage } from 'naive-ui'
+import { NButton, NGradientText, NInput, NNumberAnimation, NSpin, NStatistic, NTime, NUpload, useMessage } from 'naive-ui'
 import { useAuthStore, useUserStore } from '@/store'
 import { useAuthStoreWithout } from '@/store/modules/auth'
 import { fetchGetUser, fetchUpdateUser } from '@/api'
 
+interface Emits {
+  (e: 'openStore'): void
+}
+
+const emit = defineEmits<Emits>()
 interface UserInfo {
   userId: number // id
   userName: string// 用户名
   roleId?: number// 角色
   headImageUrl: string | null | undefined// 头像url
-  vipLevel?: string// vip等级
-  vipExpireTime?: string// vip过期时间
+  vipLevel?: number// vip等级
+  vipExpireTime?: Date// vip过期时间
   imageCount?: string// 剩余图片使用次数
   balance: number// 用户余额
 }
@@ -111,6 +116,25 @@ onMounted(() => {
           </div>
         </div>
         <div class="flex items-center space-x-4">
+          <span class="flex-shrink-0 w-[100px]">{{ $t('setting.vipLevel') }}</span>
+          <div v-if="computedConfig.vipExpireTime" class="flex-1">
+            <NGradientText
+              gradient="linear-gradient(90deg, red 0%, green 50%, blue 100%)"
+            >
+              尊贵的VIP用户
+            </NGradientText>
+          </div>
+          <NButton size="small" color="#8a2be2" @click="emit('openStore')">
+            {{ $t('setting.tobeVip') }}
+          </NButton>
+        </div>
+        <div v-if="computedConfig.vipExpireTime" class="flex items-center space-x-4">
+          <span class="flex-shrink-0 w-[100px]">{{ $t('setting.vipExpireTime') }}</span>
+          <div class="flex-1">
+            <NTime :time="new Date(computedConfig.vipExpireTime)" type="date" />
+          </div>
+        </div>
+        <div class="flex items-center space-x-4">
           <span class="flex-shrink-0 w-[100px]">{{ $t('setting.balance') }}</span>
           <div class="flex-1">
             <NStatistic tabular-nums>
@@ -124,12 +148,7 @@ onMounted(() => {
             {{ $t('setting.tobeVip') }}
           </NButton>
         </div>
-        <div class="flex items-center space-x-4" style="display: none;">
-          <span class="flex-shrink-0 w-[100px]">{{ $t('setting.vipExpireTime') }}</span>
-          <div class="flex-1">
-            <NTime v-model:value="computedConfig.vipExpireTime" :time="0" type="date" />
-          </div>
-        </div>
+
         <div class="flex items-center space-x-4">
           <NButton size="small" type="success" @click="UpdateUser">
             {{ $t('common.save') }}

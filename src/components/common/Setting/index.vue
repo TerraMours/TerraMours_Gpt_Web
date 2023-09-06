@@ -14,6 +14,7 @@ interface Props {
 
 interface Emit {
   (e: 'update:visible', visible: boolean): void
+  (e: 'openStore'): void
 }
 
 const props = defineProps<Props>()
@@ -45,7 +46,7 @@ const show = computed({
             <SvgIcon class="text-lg" icon="ri:file-user-line" />
             <span class="ml-2">{{ $t('setting.userInfo') }}</span>
           </template>
-          <UserInfo />
+          <UserInfo @openStore="emit('openStore')"/>
         </NTabPane>
         <NTabPane name="General" tab="General">
           <template #tab>

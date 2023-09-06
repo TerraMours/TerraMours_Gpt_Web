@@ -7,8 +7,8 @@ export interface UserInfo {
 	userName?: string// 用户名
 	roleId?: number// 角色
 	headImageUrl?: string | null | undefined//头像url
-	vipLevel?: string//vip等级
-	vipExpireTime?: string//vip过期时间
+	vipLevel?: number//vip等级
+	vipExpireTime?: Date//vip过期时间
 	imageCount?: string//剩余图片使用次数
 	userAccount?: string//账号（用于记住密码选项）
 	userPassword?: string // 密码 （用于记住密码选项）
