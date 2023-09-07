@@ -236,10 +236,17 @@ export interface PromptOptionRes {
   prompt: string
   usedCount: number
 }
-/** 系统提示词列表 */
+/** 分页系统提示词列表 */
 export function PromptOptionList(PageIndex: number, PageSize: number, QueryString: string | null) {
   return post<PagedRes<PromptOptionRes>>({
     url: '/api/v1/Chat/PromptOptionList',
     data: { PageSize, PageIndex, QueryString },
+  })
+}
+
+/** 全部系统提示词列表 */
+export function AllPromptOptionList() {
+  return get<PromptOptionRes[]>({
+    url: '/api/v1/Chat/AllPromptOptionList',
   })
 }

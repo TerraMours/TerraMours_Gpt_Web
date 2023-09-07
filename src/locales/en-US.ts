@@ -1,6 +1,7 @@
 export default {
   common: {
     add: 'Add',
+    OnlineUpdates: 'Online Updates',
     addSuccess: 'Add Success',
     edit: 'Edit',
     editSuccess: 'Edit Success',
