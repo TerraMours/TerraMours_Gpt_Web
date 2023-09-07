@@ -2,6 +2,11 @@
 import { defineAsyncComponent, ref } from 'vue'
 import { HoverButton, SvgIcon, UserAvatar } from '@/components/common'
 
+interface Emits {
+  (e: 'openStore'): void
+}
+
+const emit = defineEmits<Emits>()
 const Setting = defineAsyncComponent(() => import('@/components/common/Setting/index.vue'))
 
 const show = ref(false)
@@ -19,6 +24,6 @@ const show = ref(false)
       </span>
     </HoverButton>
 
-    <Setting v-if="show" v-model:visible="show" />
+    <Setting v-if="show" v-model:visible="show" @openStore="emit('openStore')"/>
   </footer>
 </template>
