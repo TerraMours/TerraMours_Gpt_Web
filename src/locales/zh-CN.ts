@@ -1,6 +1,7 @@
 export default {
   common: {
     add: '添加',
+    OnlineUpdates: '在线更新',
     addSuccess: '添加成功',
     edit: '编辑',
     editSuccess: '编辑成功',
