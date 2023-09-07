@@ -56,7 +56,7 @@ const handleEnter = (event: KeyboardEvent) => {
     <div class="w-full max-w-screen-xl m-auto">
       <div class="flex items-center justify-between space-x-2">
         <slot />
-        <NAutoComplete :options="props.searchOptions" :render-label="props.renderOption" :on-select="(value:string) => { emits('update:modelValue', value) }">
+        <NAutoComplete :options="props.searchOptions" :render-label="props.renderOption" :on-select="(value) => { emits('update:modelValue', value as string) }">
           <template #default="{ handleInput, handleBlur, handleFocus }">
             <NInput
               ref="inputRef"
