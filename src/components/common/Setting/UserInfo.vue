@@ -5,6 +5,7 @@ import { NButton, NGradientText, NInput, NNumberAnimation, NSpin, NStatistic, NT
 import { useAuthStore, useUserStore } from '@/store'
 import { useAuthStoreWithout } from '@/store/modules/auth'
 import { fetchGetUser, fetchUpdateUser } from '@/api'
+import { router } from '@/router'
 
 interface Emits {
   (e: 'openStore'): void
@@ -39,7 +40,7 @@ const handleFinish = ({ file, event }: { file: UploadFileInfo; event?: ProgressE
 function handleReset() {
   const authStore = useAuthStoreWithout()
   authStore.removeToken()
-  window.location.reload()
+  router.push('/login')
 }
 function updateUserInfo(options: Partial<UserInfo>) {
   userStore.updateUserInfo(options)
