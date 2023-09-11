@@ -170,6 +170,7 @@ async function onConversation() {
       updateChatSome(+uuid, dataSources.value.length - 1, { loading: false })
     }
     await fetchChatAPIOnce()
+    userStore.refreshUserInfo()
   }
   catch (error: any) {
     // 测试webapi
@@ -217,7 +218,6 @@ async function onConversation() {
   }
   finally {
     loading.value = false
-    userStore.refreshUserInfo()
   }
 }
 
