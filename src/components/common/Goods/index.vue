@@ -63,7 +63,7 @@ const payModel = async (good: Product) => {
   goodPrice.value = good.price
   showModal.value = true
 
-  const { data } = await PreCreate(good.name, good.price, good.description, good.categoryId, good.isVIP, good.vipLevel, good.vipTime)
+  const { data } = await PreCreate(good.name, good.price, good.description, good.id, good.isVIP, good.vipLevel, good.vipTime)
   if (data != null) {
     totpUrl.value = data.qr_code
     currentOderId.value = data.out_trade_no
