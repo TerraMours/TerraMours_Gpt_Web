@@ -226,7 +226,7 @@ export interface AlipayResponse {
 export function PreCreate(Name: string, Price: number, Description: string, ProductId: number, isvip: boolean | null, vipLevel: number | null, vipTime: number | null) {
   return post<AlipayResponse>({
     url: '/api/v1/AliPay/PreCreate',
-    data: { Name, Price, Description, isvip, vipLevel, vipTime },
+    data: { Name, Price, Description, isvip, vipLevel, vipTime, ProductId },
   })
 }
 

@@ -28,7 +28,8 @@ service.interceptors.request.use(
   (config) => {
     const token = useAuthStore().token
     if (token) {
-      config.headers.Authorization = `Bearer ${token}`
+        config.headers.Authorization = `Bearer ${token}`
+        config.withCredentials = true
     }
     else if (!config.url?.includes('/api/v1/Login') && !config.url?.includes('/api/v1/Email') && !config.url?.includes('/api/v1/Email')) {
       openDialog()
@@ -49,8 +50,7 @@ service.interceptors.response.use(
   },
   async (error: AxiosError) => {
     if (error.response?.status === 401)
-      openDialog()
-
+      openDialog(true)
     return Promise.reject(error)
   },
 )
