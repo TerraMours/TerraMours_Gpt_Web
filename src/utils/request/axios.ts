@@ -1,14 +1,18 @@
-import axios, {AxiosError, type AxiosResponse} from 'axios'
+import axios, {AxiosError, type AxiosResponse} from 'axios';
 import { createDiscreteApi } from 'naive-ui'
 import { useAuthStore } from '@/store'
 import { router } from '@/router'
 
 const { message, dialog } = createDiscreteApi(['message', 'dialog'])
+const htmlElement = document.querySelector('html')
+const envBaseUrl = htmlElement ? htmlElement.getAttribute('env_now') : null
+// 优先获取环境变量中的值，没有传再获取envconfig的值
+const baseUrl = envBaseUrl !== null ? envBaseUrl : import.meta.env.VITE_GLOB_API_URL
 const openDialog = (isOutTime = false) => {
   const content = isOutTime ? '用户信息已过期，请重新登录' : '如需体验全部功能请登录'
   dialog.info({
     title: '温馨提示',
-    content: content,
+    content,
     positiveText: '去登录',
     negativeText: '再想想',
     onPositiveClick: async () => {
@@ -21,15 +25,15 @@ const openDialog = (isOutTime = false) => {
 }
 
 const service = axios.create({
-  baseURL: import.meta.env.VITE_GLOB_API_URL,
+  baseURL: baseUrl,
 })
 
 service.interceptors.request.use(
   (config) => {
     const token = useAuthStore().token
     if (token) {
-        config.headers.Authorization = `Bearer ${token}`
-        config.withCredentials = true
+      config.headers.Authorization = `Bearer ${token}`
+      config.withCredentials = true
     }
     else if (!config.url?.includes('/api/v1/Login') && !config.url?.includes('/api/v1/Email') && !config.url?.includes('/api/v1/Email')) {
       openDialog()

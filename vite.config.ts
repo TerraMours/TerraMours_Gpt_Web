@@ -23,7 +23,6 @@ function setupPlugins(env: ImportMetaEnv): PluginOption[] {
 
 export default defineConfig((env) => {
   const viteEnv = loadEnv(env.mode, process.cwd()) as unknown as ImportMetaEnv
-
   return {
     resolve: {
       alias: {
@@ -44,6 +43,7 @@ export default defineConfig((env) => {
       },
     },
     build: {
+      chunkSizeWarningLimit: 2000,
       reportCompressedSize: false,
       sourcemap: false,
       commonjsOptions: {

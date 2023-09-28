@@ -7,11 +7,12 @@ import { HubConnectionBuilder } from '@microsoft/signalr'
 import { SvgIcon } from '..'
 import type { Product } from '@/api'
 import { GetAllProductList, PreCreate } from '@/api'
+import { baseUrl } from '@/store'
 const props = defineProps<Props>()
 
 const emit = defineEmits<Emit>()
 
-const apiUrl = import.meta.env.VITE_GLOB_API_URL
+const apiUrl = baseUrl
 
 interface Props {
   visible: boolean

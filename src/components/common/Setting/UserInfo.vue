@@ -2,7 +2,7 @@
 import { computed, onMounted, ref } from 'vue'
 import type { UploadFileInfo } from 'naive-ui'
 import { NButton, NGradientText, NInput, NNumberAnimation, NSpin, NStatistic, NTime, NUpload, useMessage } from 'naive-ui'
-import { useAuthStore, useUserStore } from '@/store'
+import { baseUrl, useAuthStore, useUserStore } from '@/store'
 import { useAuthStoreWithout } from '@/store/modules/auth'
 import { fetchGetUser, fetchUpdateUser } from '@/api'
 import { router } from '@/router'
@@ -27,7 +27,7 @@ const ms = useMessage()
 const userStore = useUserStore()
 const loading = ref(false)
 const computedConfig = computed(() => config.value || {} as UserInfo)
-const apiUrl = import.meta.env.VITE_GLOB_API_URL
+const apiUrl = baseUrl
 const fileList = ref<UploadFileInfo[]>()
 const uploadUrl = `${apiUrl}/api/v1/Product/UploadProductImage`
 
