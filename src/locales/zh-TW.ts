@@ -1,6 +1,7 @@
 export default {
   common: {
     add: '新增',
+    OnlineUpdates: '在線更新',
     addSuccess: '新增成功',
     edit: '編輯',
     editSuccess: '編輯成功',

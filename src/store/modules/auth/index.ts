@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import { getImgKey, getToken, removeToken, setImgKey, setToken } from './helper'
-import { store } from '@/store'
+import { store } from '@/store/helper'
 import { fetchSession } from '@/api'
 
 interface SessionResponse {
@@ -13,7 +13,10 @@ export interface AuthState {
   imgKey: string | undefined
   session: SessionResponse | null
 }
-
+const htmlElement = document.querySelector('html')
+const envBaseUrl = htmlElement ? htmlElement.getAttribute('env_now') : null
+// 优先获取环境变量中的值，没有传再获取envconfig的值
+export const baseUrl = envBaseUrl !== null ? envBaseUrl : import.meta.env.VITE_GLOB_API_URL
 export const useAuthStore = defineStore('auth-store', {
   state: (): AuthState => ({
     token: getToken(),

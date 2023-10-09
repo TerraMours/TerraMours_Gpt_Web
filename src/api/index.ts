@@ -26,7 +26,7 @@ export function fetchGetUser<T = any>() {
   })
 }
 
-export function fetchUpdateUser(userId: number, userName: string, headImageUrl: string | undefined) {
+export function fetchUpdateUser(userId: number, userName: string, headImageUrl: string | null | undefined) {
   return post<boolean>({
     url: '/api/v1/User/UpdateUser',
     data: { userId, userName, headImageUrl },
@@ -226,7 +226,7 @@ export interface AlipayResponse {
 export function PreCreate(Name: string, Price: number, Description: string, ProductId: number, isvip: boolean | null, vipLevel: number | null, vipTime: number | null) {
   return post<AlipayResponse>({
     url: '/api/v1/AliPay/PreCreate',
-    data: { Name, Price, Description, isvip, vipLevel, vipTime },
+    data: { Name, Price, Description, isvip, vipLevel, vipTime, ProductId },
   })
 }
 
@@ -236,10 +236,17 @@ export interface PromptOptionRes {
   prompt: string
   usedCount: number
 }
-/** 系统提示词列表 */
+/** 分页系统提示词列表 */
 export function PromptOptionList(PageIndex: number, PageSize: number, QueryString: string | null) {
   return post<PagedRes<PromptOptionRes>>({
     url: '/api/v1/Chat/PromptOptionList',
     data: { PageSize, PageIndex, QueryString },
+  })
+}
+
+/** 全部系统提示词列表 */
+export function AllPromptOptionList() {
+  return get<PromptOptionRes[]>({
+    url: '/api/v1/Chat/AllPromptOptionList',
   })
 }

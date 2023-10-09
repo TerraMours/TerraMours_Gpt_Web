@@ -1,6 +1,7 @@
 export default {
   common: {
     add: '添加',
+    OnlineUpdates: '在线更新',
     addSuccess: '添加成功',
     edit: '编辑',
     editSuccess: '编辑成功',
@@ -75,11 +76,11 @@ export default {
     balance: '用户余额',
     monthlyUsage: '本月使用量',
     vipLevel: '会员等级',
-    vipExpireTime: '会员过期时间',
-    tobeVip:'余额充值',
-    imageCount:'图片剩余次数',
-    userInfo:"用户管理",
-    logout:'登出',
+    vipExpireTime: '会员到期时间',
+    tobeVip: '充值',
+    imageCount: '图片剩余次数',
+    userInfo: '用户管理',
+    logout: '登出',
   },
   store: {
     siderButton: '提示词商店',

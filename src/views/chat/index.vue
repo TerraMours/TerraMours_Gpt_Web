@@ -170,6 +170,7 @@ async function onConversation() {
       updateChatSome(+uuid, dataSources.value.length - 1, { loading: false })
     }
     await fetchChatAPIOnce()
+    userStore.refreshUserInfo()
   }
   catch (error: any) {
     // 测试webapi
@@ -217,7 +218,6 @@ async function onConversation() {
   }
   finally {
     loading.value = false
-    userStore.refreshUserInfo()
   }
 }
 
@@ -426,7 +426,11 @@ const renderOption = (option: { label: string }) => {
   }
   return []
 }
-
+const placeholder = computed(() => {
+  if (isMobile.value)
+    return t('chat.placeholderMobile')
+  return t('chat.placeholder')
+})
 const buttonDisabled = computed(() => {
   return loading.value || !prompt.value || prompt.value.trim() === ''
 })
@@ -498,6 +502,7 @@ onUnmounted(() => {
       :render-option="renderOption"
       :button-disabled="buttonDisabled"
       :counter="submitFooterInputCounter"
+      :placeholder="placeholder"
       @submit="onConversation"
     >
       <HoverButton v-if="!isMobile" @click="showModal = true">

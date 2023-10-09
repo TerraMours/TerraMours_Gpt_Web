@@ -3,6 +3,8 @@ import type { PluginOption } from 'vite'
 import { defineConfig, loadEnv } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import { VitePWA } from 'vite-plugin-pwa'
+import compressionPlugin from 'vite-plugin-compression'
+import { visualizer } from 'rollup-plugin-visualizer'
 
 function setupPlugins(env: ImportMetaEnv): PluginOption[] {
   return [
@@ -18,12 +20,15 @@ function setupPlugins(env: ImportMetaEnv): PluginOption[] {
         ],
       },
     }),
+    compressionPlugin({
+      threshold: 10240, // 大于10kb压缩
+      algorithm: 'gzip',
+    }),
   ]
 }
 
 export default defineConfig((env) => {
   const viteEnv = loadEnv(env.mode, process.cwd()) as unknown as ImportMetaEnv
-
   return {
     resolve: {
       alias: {
@@ -44,6 +49,7 @@ export default defineConfig((env) => {
       },
     },
     build: {
+      chunkSizeWarningLimit: 2000,
       reportCompressedSize: false,
       sourcemap: false,
       commonjsOptions: {

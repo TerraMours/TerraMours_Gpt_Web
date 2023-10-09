@@ -1,6 +1,7 @@
 export default {
   common: {
     add: 'Add',
+    OnlineUpdates: 'Online Updates',
     addSuccess: 'Add Success',
     edit: 'Edit',
     editSuccess: 'Edit Success',
@@ -74,12 +75,12 @@ export default {
     httpsProxy: 'HTTPS Proxy',
     balance: 'API Balance',
     monthlyUsage: 'Monthly Usage',
-    vipLevel: '会员等级',
-    vipExpireTime: '会员过期时间',
-    tobeVip:'余额充值',
-    imageCount:'图片剩余次数',
-    userInfo:"用户管理",
-    logout:'登出',
+    vipLevel: 'VipLevel',
+    vipExpireTime: 'VipExpireTime',
+    tobeVip: 'TobeVip',
+    imageCount: 'imageCount',
+    userInfo: 'userInfo',
+    logout: 'logout',
   },
   store: {
     siderButton: 'Prompt Store',

@@ -7,8 +7,8 @@ export const useUserStore = defineStore('user-store', {
   state: (): UserState => getLocalState(),
   actions: {
     async refreshUserInfo() {
-      const { data } = await fetchGetUser<UserInfo>()
-      this.userInfo = data
+      const { data: { userAccount, userPassword, ...filteredData } } = await fetchGetUser<UserInfo>()
+      this.userInfo = { ...this.userInfo, ...filteredData }
       this.recordState()
     },
     updateUserInfo(userInfo: Partial<UserInfo>) {
