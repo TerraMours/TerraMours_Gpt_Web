@@ -6,6 +6,7 @@ import { router } from '@/router'
 const { message, dialog } = createDiscreteApi(['message', 'dialog'])
 const htmlElement = document.querySelector('html')
 const envBaseUrl = htmlElement ? htmlElement.getAttribute('env_now') : null
+console.log(envBaseUrl)
 // 优先获取环境变量中的值，没有传再获取envconfig的值
 const baseUrl = envBaseUrl !== null ? envBaseUrl : import.meta.env.VITE_GLOB_API_URL
 const openDialog = (isOutTime = false) => {

@@ -127,11 +127,6 @@ const loginHandle = () => {
                   确定
                 </NButton>
                 <div class="flex-y-center justify-between">
-                  <!-- 手机验收码登录 -->
-                  <!-- <NButton class="flex-1" :block="true" @click="toLoginModule('code-login')">
-										{{ loginModuleLabels['code-login'] }}
-									</NButton> -->
-
                   <div class="w-12px" />
                   <NButton class="flex-1" :block="true" @click="toRegister">
                     <span class="text-slate-300">
@@ -140,16 +135,11 @@ const loginHandle = () => {
                   </NButton>
                 </div>
               </NSpace>
-              <!-- 其他账户登录 -->
-              <!-- <other-account @login="handleLoginOtherAccount" /> -->
             </NForm>
           </NSpin>
         </div>
       </NGridItem>
       <NGridItem span="0 xs:2 m:2 l:4 xl:4" />
     </NGrid>
-    <!--    <div class="absolute w-1/4 p-4 right-40 bottom-1/2 translate-y-1/2"> -->
-    <!--   -->
-    <!--    </div> -->
   </div>
 </template>
