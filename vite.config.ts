@@ -3,6 +3,8 @@ import type { PluginOption } from 'vite'
 import { defineConfig, loadEnv } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import { VitePWA } from 'vite-plugin-pwa'
+import compressionPlugin from 'vite-plugin-compression'
+import { visualizer } from 'rollup-plugin-visualizer'
 
 function setupPlugins(env: ImportMetaEnv): PluginOption[] {
   return [
@@ -17,6 +19,10 @@ function setupPlugins(env: ImportMetaEnv): PluginOption[] {
           { src: 'pwa-512x512.png', sizes: '512x512', type: 'image/png' },
         ],
       },
+    }),
+    compressionPlugin({
+      threshold: 10240, // 大于10kb压缩
+      algorithm: 'gzip',
     }),
   ]
 }

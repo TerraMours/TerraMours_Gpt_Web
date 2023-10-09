@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import { getImgKey, getToken, removeToken, setImgKey, setToken } from './helper'
-import { store } from '@/store'
+import { store } from '@/store/helper'
 import { fetchSession } from '@/api'
 
 interface SessionResponse {
