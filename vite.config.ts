@@ -4,7 +4,6 @@ import { defineConfig, loadEnv } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import { VitePWA } from 'vite-plugin-pwa'
 import compressionPlugin from 'vite-plugin-compression'
-import { visualizer } from 'rollup-plugin-visualizer'
 
 function setupPlugins(env: ImportMetaEnv): PluginOption[] {
   return [

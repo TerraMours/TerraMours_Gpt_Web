@@ -21,7 +21,10 @@ import { HoverButton, SvgIcon } from '@/components/common'
 import type { SubmitDTO } from '@/api'
 import { GenerateGraph, MyImageList, ShareImage, ShareImageList } from '@/api'
 // 定义后端接口的地址
-const apiUrl = import.meta.env.VITE_GLOB_API_URL
+const htmlElement = document.querySelector('html')
+const envBaseUrl = htmlElement ? htmlElement.getAttribute('env_now') : null
+// 优先获取环境变量中的值，没有传再获取envconfig的值
+const apiUrl = envBaseUrl !== null ? envBaseUrl : import.meta.env.VITE_GLOB_API_URL
 const authStore = useAuthStoreWithout()
 const modelTypeOptions: Array<{ label: string; value: number }> = [
   { label: 'CHATGPT', value: 0 },

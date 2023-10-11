@@ -1,131 +1,161 @@
+<script lang="ts">
+import { NButton, NInput } from 'naive-ui'
+import { reactive, ref } from 'vue'
+import axios from 'axios'
+const bgUrl = 'https://www.firstsaofan.top/upload/2023/04/queryBackground.webp'
+// 定义后端接口的地址
+const htmlElement = document.querySelector('html')
+const envBaseUrl = htmlElement ? htmlElement.getAttribute('env_now') : null
+// 优先获取环境变量中的值，没有传再获取envconfig的值
+const apiUrl = envBaseUrl !== null ? envBaseUrl : import.meta.env.VITE_GLOB_API_URL
+
+interface ApiResponse {
+  status: string
+  data: {
+    apiKey: string
+    expirationTime: string
+    used: number
+    unUsed: number
+    total: number
+  }
+  message: string
+}
+
+export default {
+  components: {
+    NButton,
+    NInput,
+  },
+  setup() {
+    const detail = reactive({
+      apiKey: '',
+      expirationTime: '-',
+      used: 0,
+      unUsed: 0,
+      total: 0,
+    })
+    const loading = ref(false)
+    const errorMsg = ref('')
+    const key = ref('')
+    const handleSubmit = async () => {
+      if (!key.value.startsWith('sk-')) {
+        errorMsg.value = '无效的API密钥，请检查您的API密钥是否正确。'
+        return
+      }
+      // 发送 HTTP 请求
+      loading.value = true
+      errorMsg.value = ''
+      try {
+        const resp = await axios.get<ApiResponse>(
+            `${apiUrl}/CheckBalance?key=${key.value}`,
+        )
+        if (resp.data.status === 'Success') {
+          detail.apiKey = resp.data.data.apiKey
+          detail.expirationTime = new Date(resp.data.data.expirationTime).toLocaleDateString()
+          detail.used = resp.data.data.used
+          detail.unUsed = resp.data.data.unUsed
+          detail.total = resp.data.data.total
+        }
+        else {
+          errorMsg.value = resp.data.message || '发生未知错误'
+        }
+      }
+      catch (err: any) {
+        errorMsg.value = `查询出错：${err.message}`
+      }
+      finally {
+        loading.value = false
+      }
+    }
+
+    return {
+      detail,
+      loading,
+      errorMsg,
+      key,
+      bgUrl,
+      handleSubmit,
+    }
+  },
+}
+</script>
+
 <template>
-    <div class="container" :style="'background-image: url(' + bgUrl + ')'">
-      <div class="content">
-        <h1 class="title">查询余额</h1>
-        <div class="input-wrap">
-            <div class="input-container">
-                <NInput placeholder="请输入 key" v-model:value="key" autofocus class="key-input" />
-                <NButton type="primary" @click="handleSubmit">查询</NButton>
+  <div class="container" :style="`background-image: url(${bgUrl})`">
+    <div class="content">
+      <h1 class="title">
+        查询余额
+      </h1>
+      <div class="input-wrap">
+        <div class="input-container">
+          <NInput v-model:value="key" placeholder="请输入 key" autofocus class="key-input" />
+          <NButton type="primary" @click="handleSubmit">
+            查询
+          </NButton>
+        </div>
+        <div v-if="loading" class="loading">
+          正在加载...
+        </div>
+        <div v-if="errorMsg" class="error-msg">
+          {{ errorMsg }}
+        </div>
+        <div v-if="!loading && !errorMsg" class="result">
+          <div class="result-box">
+            <div class="result-title">
+              总额度：
             </div>
-          <div class="loading" v-if="loading">正在加载...</div>
-          <div class="error-msg" v-if="errorMsg">{{ errorMsg }}</div>
-          <div class="result" v-if="!loading && !errorMsg">
-            <div class="result-box">
-                <div class="result-title">总额度：</div>
-                <div class="result-value">{{ detail.total.toFixed(3) }}</div>
+            <div class="result-value">
+              {{ detail.total.toFixed(3) }}
             </div>
-            <div class="result-box">
-                <div class="result-title">过期时间：</div>
-                <div class="result-value">{{ detail.expirationTime }}</div>
+          </div>
+          <div class="result-box">
+            <div class="result-title">
+              过期时间：
             </div>
-            <div class="result-box">
-                <div class="result-title">使用量：</div>
-                <div class="result-value">{{ detail.used.toFixed(3) }}</div>
+            <div class="result-value">
+              {{ detail.expirationTime }}
             </div>
-            <div class="result-box">
-                <div class="result-title">余额：</div>
-                <div class="result-value">{{ detail.unUsed.toFixed(3) }}</div>
+          </div>
+          <div class="result-box">
+            <div class="result-title">
+              使用量：
             </div>
+            <div class="result-value">
+              {{ detail.used.toFixed(3) }}
+            </div>
+          </div>
+          <div class="result-box">
+            <div class="result-title">
+              余额：
+            </div>
+            <div class="result-value">
+              {{ detail.unUsed.toFixed(3) }}
+            </div>
+          </div>
         </div>
         <!-- 在 .result 元素后添加一个新的 .links 元素 -->
-        <div class="result" v-if="!loading && !errorMsg">
+        <div v-if="!loading && !errorMsg" class="result">
         <!-- 省略原有的代码 -->
         </div>
         <div class="links">
-        <div>
+          <div>
             <a href="https://sp.terramours.site/" target="_blank">卡密商店：sp.terramours.site</a>
-        </div>
-        <br>
-        <div>
+          </div>
+          <br>
+          <div>
             <a href="https://ai.firstsaofan.top" target="_blank">gpt网站：ai.firstsaofan.top</a>
-        </div>
-        <br>
-        
-        <div>Design by TerraMours</div>
-        <div>
+          </div>
+          <br>
+
+          <div>Design by TerraMours</div>
+          <div>
             <a href="https://github.com/firstsaofan/TerraMours" target="_blank">https://github.com/firstsaofan/TerraMours</a>
-        </div>
-        </div>
+          </div>
         </div>
       </div>
     </div>
-  </template>
-  
-  <script lang="ts">
-  import { NButton, NInput} from "naive-ui";
-  import { reactive, ref } from "vue";
-  import axios from "axios";
-  const bgUrl = 'https://www.firstsaofan.top/upload/2023/04/queryBackground.webp';
-  // 定义后端接口的地址
-  const apiUrl = import.meta.env.VITE_GLOB_API_URL;
-  
-  interface ApiResponse {
-    status: string;
-    data: {
-      apiKey: string;
-      expirationTime: string;
-      used: number;
-      unUsed: number;
-      total: number;
-    };
-    message: string;
-  }
-  
-  export default {
-    components: {
-      NButton,
-      NInput,
-    },
-    setup() {
-      const detail = reactive({
-        apiKey: "",
-        expirationTime: "-",
-        used: 0,
-        unUsed: 0,
-        total: 0,
-      });
-      const loading = ref(false);
-      const errorMsg = ref("");
-      const key = ref("");
-      const handleSubmit = async () => {
-        if (!key.value.startsWith("sk-")) {
-            errorMsg.value="无效的API密钥，请检查您的API密钥是否正确。";
-            return;
-        }
-        // 发送 HTTP 请求
-        loading.value = true;
-        errorMsg.value = "";
-        try {
-          const resp = await axios.get<ApiResponse>(
-            `${apiUrl}/CheckBalance?key=${key.value}`
-          );
-          if (resp.data.status === "Success") {
-            detail.apiKey = resp.data.data.apiKey;
-            detail.expirationTime =new Date(resp.data.data.expirationTime).toLocaleDateString();
-            detail.used = resp.data.data.used;
-            detail.unUsed = resp.data.data.unUsed;
-            detail.total = resp.data.data.total;
-          } else {
-            errorMsg.value = resp.data.message || "发生未知错误";
-}
-} catch (err:any) {
-    errorMsg.value = `查询出错：${err.message}`;
-} finally {
-loading.value = false;
-}
-};
-
-return {
-  detail,
-  loading,
-  errorMsg,
-  key,
-  bgUrl,
-  handleSubmit,
-};
-},
-};
-</script>
+  </div>
+</template>
 
 <style scoped>
 .container {
@@ -170,7 +200,6 @@ margin-bottom: 32px;
   margin-right: 10px;
 }
 
-
 .result {
   width: 100%;
   display: flex;
@@ -203,7 +232,6 @@ margin-bottom: 32px;
   color: #007bb5;
 }
 
-
 .loading {
 margin-top: 32px;
 font-size: 20px;
@@ -233,5 +261,4 @@ color: red;
   color: #007bb5;
   text-decoration: none;
 }
-
 </style>
