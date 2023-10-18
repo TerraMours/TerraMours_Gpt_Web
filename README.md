@@ -43,7 +43,7 @@ TerraMours-Gpt-Web基于vue3.0+ts+naive UI+vite的ChatGPT项目前端。
 
 新建一个空文件命名为docker-compose.yml，将以下内容粘贴到文件中保存
 
-```dockerfile
+```yaml
 version: "3.9"
 services:
   redis:
@@ -67,6 +67,18 @@ services:
     restart: always
     networks:
       - server
+
+  seq:
+    image: datalust/seq
+    container_name: seq_container
+    environment:
+      - ACCEPT_EULA=Y
+    ports:
+      - "5341:80"
+    restart: always
+    networks:
+      - server
+
   server:
     image: raokun88/terramours_gpt_server:latest
     container_name: terramours_gpt_server
@@ -74,9 +86,10 @@ services:
       - TZ=Asia/Shanghai
       - ENV_DB_CONNECTION=Host=postgres;Port=5432;Userid=postgres;password=terramours1024;Database=TerraMoursGpt;
       - ENV_REDIS_HOST=redis:6379
+      - ENV_SEQ_HOST=http://<YOUR-SERVER-IP>:5341/
     volumes:
       # 图片挂载地址，将容器中的图片挂载出来
-      - F:\Docker\terra\server\images:/app/images
+      - /path/terra/images:/app/images
       # 可挂载自定义的配置文件快速进行系统配置
       #- F:\Docker\terra\server/appsettings.json:/app/appsettings.json
     ports:
@@ -91,7 +104,7 @@ services:
     image: raokun88/terramours_gpt_admin:latest
     container_name: terramoursgptadmin
     environment:
-      - VUE_APP_API_BASE_URL=http://127.0.0.1:3116
+      - VUE_APP_API_BASE_URL=http://<YOUR-SERVER-IP>:3116
     ports:
       - "3226:8081"
     restart: always
@@ -102,19 +115,32 @@ services:
     image: raokun88/terramours_gpt_web:latest
     container_name: terramoursgptweb
     environment:
-      - VUE_APP_API_BASE_URL=http://127.0.0.1:3116
+      - VUE_APP_API_BASE_URL=http://<YOUR-SERVER-IP>:3116
     ports:
       - "3216:8081"
     restart: always
     networks:
       - server
-    
+
 networks:
   server:
     driver:
       bridge
 
 ```
+
+##### 安装注意
+
+1.修改yml：将`<YOUR-SERVER-IP>` 替换成服务器IP<br/>
+2.默认管理员账号密码：terramours@163.com  terramours@163.com<br/>
+3.系统报错，通过seq查看，查看地址：`http://<YOUR-SERVER-IP>:5341/`<br/>
+4.seq日志中显示`初始化数据库成功` 即代表后端服务初始化成功，首次安装可能会有报错的现象，建议dockercompose安装完成后重启terramours_gpt_server容器<br/>
+5.更多服务配置，可以把服务端的github上的appsettings.json文件拷到服务端，通过挂载修改容器中的配置文件<br/>
+```
+# 可挂载自定义的配置文件快速进行系统配置
+- /path/terra/appsettings.json:/app/appsettings.json
+```
+
 
 #### 2.上传dockercompose文件到服务器
 
