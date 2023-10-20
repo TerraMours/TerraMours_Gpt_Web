@@ -250,3 +250,50 @@ export function AllPromptOptionList() {
     url: '/api/v1/Chat/AllPromptOptionList',
   })
 }
+
+export interface ChatConversationRes {
+  conversationId: number
+  conversationName: string
+	isEdit: boolean
+}
+/** 聊天会话列表 */
+export function ChatConversationList(PageIndex: number, PageSize: number, QueryString: string | null) {
+  return post<PagedRes<ChatConversationRes>>({
+    url: '/api/v1/Chat/ChatConversationList',
+    data: { PageSize, PageIndex, QueryString },
+  })
+}
+
+export interface ChatRes {
+  ChatRecordId: number
+  ModelType: string
+  Model: string
+  ConversationId: number
+  Message: string
+  CreateDate: Date
+  ModifyDate: Date
+  PromptTokens: number
+  CompletionTokens: number
+  TotalTokens: number
+}
+/** 聊天会话列表 */
+export function ChatRecordList(PageIndex: number, PageSize: number, ConversationId: number, QueryString: string | null) {
+  return post<PagedRes<ChatRes>>({
+    url: '/api/v1/Chat/ChatRecordList',
+    data: { PageSize, PageIndex, ConversationId, QueryString },
+  })
+}
+
+/**
+ * 修改密码
+ * @param userAccount
+ * @param userPassword
+ * @param repeatPassword
+ * @param checkCode
+ */
+export function fetchChangePassword(userAccount: string, userPassword: string, repeatPassword: string, checkCode: string) {
+  return post<string>({
+    url: '/api/v1/Login/ChangePassword',
+    data: { userAccount, userPassword, repeatPassword, checkCode },
+  })
+}

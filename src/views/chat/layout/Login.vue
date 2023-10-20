@@ -51,6 +51,9 @@ const router = useRouter()
 const toRegister = async () => {
   await router.push('/register')
 }
+const toChangePassword = async () => {
+  await router.push('/changePassword')
+}
 const loginHandle = () => {
   formRef.value?.validate(async (err) => {
     loading.value = true
@@ -111,7 +114,7 @@ const loginHandle = () => {
                     <NCheckbox :checked="saveMe" @update:checked="saveMe = !saveMe">
                       <span class="text-slate-300">记住我</span>
                     </NCheckbox>
-                    <NButton :text="true">
+                    <NButton :text="true" @click="toChangePassword">
                       <span class="text-slate-300">
                         忘记密码？
                       </span>
