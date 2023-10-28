@@ -1,69 +1,97 @@
 <script setup lang='ts'>
-import { computed } from 'vue'
+import { onMounted, ref } from 'vue'
 import { NInput, NPopconfirm, NScrollbar } from 'naive-ui'
 import { SvgIcon } from '@/components/common'
 import { useAppStore, useChatStore } from '@/store'
 import { useBasicLayout } from '@/hooks/useBasicLayout'
 import { debounce } from '@/utils/functions/debounce'
+import type { ChatConversationRes } from '@/api'
+import { AddChatConversation, ChangeChatConversation, ChatConversationList, DeleteChatConversation } from '@/api'
 
 const { isMobile } = useBasicLayout()
 
 const appStore = useAppStore()
 const chatStore = useChatStore()
+// new
+const conversationList = ref<ChatConversationRes[]>([])
 
-const dataSources = computed(() => chatStore.history)
-
-async function handleSelect({ uuid }: Chat.History) {
-  if (isActive(uuid))
+async function handleSelect({ conversationId }: ChatConversationRes) {
+  if (isActive(conversationId))
     return
-
-  if (chatStore.active)
-    chatStore.updateHistory(chatStore.active, { isEdit: false })
-  await chatStore.setActive(uuid)
-
+  await chatStore.setActive(conversationId)
   if (isMobile.value)
     appStore.setSiderCollapsed(true)
 }
 
-function handleEdit({ uuid }: Chat.History, isEdit: boolean, event?: MouseEvent) {
+async function handleEdit(conversation: ChatConversationRes, isEdit: boolean, event?: MouseEvent) {
   event?.stopPropagation()
-  chatStore.updateHistory(uuid, { isEdit })
+  conversation.isEdit = isEdit
+  if (isEdit === false) {
+    await ChangeChatConversation(conversation.conversationId, conversation.conversationName)
+  }
 }
 
-function handleDelete(index: number, event?: MouseEvent | TouchEvent) {
+async function handleDelete(index: number, event?: MouseEvent | TouchEvent) {
   event?.stopPropagation()
-  chatStore.deleteHistory(index)
+  const delItem = conversationList.value[index]
+
+  const data = await DeleteChatConversation(delItem.conversationId)
+  if (data.code === 200) {
+    conversationList.value.splice(index, 1)
+    chatStore.active = conversationList.value.length > 0 ? conversationList.value[index - 1].conversationId : 0
+  }
   if (isMobile.value)
     appStore.setSiderCollapsed(true)
 }
 
 const handleDeleteDebounce = debounce(handleDelete, 600)
 
-function handleEnter({ uuid }: Chat.History, isEdit: boolean, event: KeyboardEvent) {
+async function handleEnter(conversation: ChatConversationRes, isEdit: boolean, event: KeyboardEvent) {
   event?.stopPropagation()
-  if (event.key === 'Enter')
-    chatStore.updateHistory(uuid, { isEdit })
+  if (event.key === 'Enter') {
+    conversation.isEdit = isEdit
+    if (isEdit === false) {
+      await ChangeChatConversation(conversation.conversationId, conversation.conversationName)
+    }
+  }
 }
 
 function isActive(uuid: number) {
   return chatStore.active === uuid
 }
+onMounted(async () => {
+  const { data } = await ChatConversationList(1, 100, null)
+  if (data.items != null) {
+    conversationList.value = data.items
+    if (chatStore.active === 0)
+      chatStore.active = data.items[0].conversationId
+  }
+})
+
+const addConversation = async (conversationName: string) => {
+  const data = await AddChatConversation(conversationName)
+  if (data.code === 200) {
+    conversationList.value = [data.data, ...conversationList.value]
+    chatStore.active = data.data.conversationId
+  }
+}
+defineExpose({ addConversation })
 </script>
 
 <template>
   <NScrollbar class="px-4">
     <div class="flex flex-col gap-2 text-sm">
-      <template v-if="!dataSources.length">
+      <template v-if="!conversationList.length">
         <div class="flex flex-col items-center mt-4 text-center text-neutral-300">
           <SvgIcon icon="ri:inbox-line" class="mb-2 text-3xl" />
           <span>{{ $t('common.noData') }}</span>
         </div>
       </template>
       <template v-else>
-        <div v-for="(item, index) of dataSources" :key="index">
+        <div v-for="(item, index) of conversationList" :key="index">
           <a
             class="relative flex items-center gap-3 px-3 py-3 break-all border rounded-md cursor-pointer hover:bg-neutral-100 group dark:border-neutral-800 dark:hover:bg-[#24272e]"
-            :class="isActive(item.uuid) && ['border-[#4b9e5f]', 'bg-neutral-100', 'text-[#4b9e5f]', 'dark:bg-[#24272e]', 'dark:border-[#4b9e5f]', 'pr-14']"
+            :class="isActive(item.conversationId) && ['border-[#4b9e5f]', 'bg-neutral-100', 'text-[#4b9e5f]', 'dark:bg-[#24272e]', 'dark:border-[#4b9e5f]', 'pr-14']"
             @click="handleSelect(item)"
           >
             <span>
@@ -72,12 +100,12 @@ function isActive(uuid: number) {
             <div class="relative flex-1 overflow-hidden break-all text-ellipsis whitespace-nowrap">
               <NInput
                 v-if="item.isEdit"
-                v-model:value="item.title" size="tiny"
+                v-model:value="item.conversationName" size="tiny"
                 @keypress="handleEnter(item, false, $event)"
               />
-              <span v-else>{{ item.title }}</span>
+              <span v-else>{{ item.conversationName }}</span>
             </div>
-            <div v-if="isActive(item.uuid)" class="absolute z-10 flex visible right-1">
+            <div v-if="isActive(item.conversationId)" class="absolute z-10 flex visible right-1">
               <template v-if="item.isEdit">
                 <button class="p-1" @click="handleEdit(item, false, $event)">
                   <SvgIcon icon="ri:save-line" />

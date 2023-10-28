@@ -249,16 +249,6 @@ onBeforeMount(() => {
             </NPopover>
           </span>
         </HoverButton>
-        <!-- <HoverButton @click="history">
-					<span class="text-xl text-[#4f555e] dark:text-white">
-						<NPopover trigger="hover">
-							<template #trigger>
-							<SvgIcon icon="ri:file-user-line" />
-							</template>
-							<span>会话历史</span>
-						</NPopover>
-					</span>
-				</HoverButton> -->
       </SubmitFooter>
     </div>
 

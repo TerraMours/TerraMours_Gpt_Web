@@ -13,7 +13,7 @@ defineProps<Props>()
 interface Props {
   visible: boolean
 }
-
+const ms = useMessage()
 const store = useAuthStore()
 const userStore = useUserStore()
 const localState = getLocalState().userInfo
@@ -61,18 +61,22 @@ const loginHandle = () => {
       loading.value = false
       return
     }
-    const loginRes = await login(formData)
-    loading.value = false
-    if (loginRes.code === 200) {
+    try {
+      const loginRes = await login(formData)
+      loading.value = false
+      if (loginRes.code === 200) {
       // 记住密码
-      userStore.refreshUserInfo()
-      userStore.updateUserInfo(Object.assign({}, formData, saveMe.value ? {} : { userPassword: '' }))
-      store.setToken(loginRes.data.token)
-      message.success('登录成功！')
-      await router.push('/chat')
-      return
+        userStore.refreshUserInfo()
+        userStore.updateUserInfo(Object.assign({}, formData, saveMe.value ? {} : { userPassword: '' }))
+        store.setToken(loginRes.data.token)
+        message.success('登录成功！')
+        await router.push('/chat')
+      }
     }
-    message.warning('登录出错,请联系管理员')
+    catch (error: any) {
+      loading.value = false
+      ms.error(error.message ?? 'error')
+    }
   })
 }
 </script>
