@@ -204,7 +204,7 @@ const exportPromptTemplate = () => {
 // 通过后端接口获取更新本地数据
 const getPromptOptionList = async () => {
   const { data } = await AllPromptOptionList()
-  if (data != null) {
+  if (data != null && data.length > 0) {
     const newJsonData = data.map((item: { act: string; prompt: string }) => {
       return {
         key: item.act,

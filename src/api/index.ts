@@ -254,7 +254,7 @@ export function AllPromptOptionList() {
 export interface ChatConversationRes {
   conversationId: number
   conversationName: string
-	isEdit: boolean
+  isEdit: boolean
 }
 /** 聊天会话列表 */
 export function ChatConversationList(PageIndex: number, PageSize: number, QueryString: string | null) {
@@ -265,25 +265,72 @@ export function ChatConversationList(PageIndex: number, PageSize: number, QueryS
 }
 
 export interface ChatRes {
-  ChatRecordId: number
-  ModelType: string
-  Model: string
-  ConversationId: number
-  Message: string
-  CreateDate: Date
-  ModifyDate: Date
-  PromptTokens: number
-  CompletionTokens: number
-  TotalTokens: number
+  chatRecordId: number
+  modelType: string
+  model: string
+  conversationId: number
+  message: string
+  createDate: string
+  modifyDate: string
+  promptTokens: number
+  completionTokens: number
+  totalTokens: number
+  role: string
+  error?: boolean
+  loading?: boolean
 }
-/** 聊天会话列表 */
-export function ChatRecordList(PageIndex: number, PageSize: number, ConversationId: number, QueryString: string | null) {
+/** 聊天列表 */
+export function ChatRecordList(PageIndex: number, PageSize: number, ConversationId: number | null, QueryString: string | null) {
   return post<PagedRes<ChatRes>>({
     url: '/api/v1/Chat/ChatRecordList',
     data: { PageSize, PageIndex, ConversationId, QueryString },
   })
 }
 
+/**
+ * 删除聊天会话
+ * @param conversationId
+ * @constructor
+ */
+export function DeleteChatConversation(conversationId: number) {
+  return get<boolean>({
+    url: '/api/v1/Chat/DeleteChatConversation',
+    data: { conversationId },
+  })
+}
+/**
+ * 修改聊天会话
+ * @param conversationId
+ * @constructor
+ */
+export function ChangeChatConversation(conversationId: number, conversationName: string) {
+  return get<boolean>({
+    url: '/api/v1/Chat/ChangeChatConversation',
+    data: { conversationId, conversationName },
+  })
+}
+/**
+ * 新建聊天会话
+ * @param conversationId
+ * @constructor
+ */
+export function AddChatConversation(conversationName: string) {
+  return get<ChatConversationRes>({
+    url: '/api/v1/Chat/AddChatConversation',
+    data: { conversationName },
+  })
+}
+/**
+ * 删除聊天记录
+ * @param conversationId
+ * @constructor
+ */
+export function DeleteChatRecord(recordId: number) {
+  return get<boolean>({
+    url: '/api/v1/Chat/DeleteChatRecord',
+    data: { recordId },
+  })
+}
 /**
  * 修改密码
  * @param userAccount
