@@ -5,7 +5,7 @@ import { NButton, NForm, NFormItem, NInput, NSpace, useMessage } from 'naive-ui'
 import { useRouter } from 'vue-router'
 import useSmsCode from '../hooks/use-sms-code'
 import SvgIcon from '@/components/common/SvgIcon/index.vue'
-import { fetchRegister } from '@/api'
+import { fetchChangePassword } from '@/api'
 import { formRules, getConfirmPwdRule } from '@/views/chat/hooks'
 
 defineProps<Props>()
@@ -42,13 +42,13 @@ function handleSmsCode() {
 // 点击注册按钮
 async function handleSubmit() {
   await formRef.value?.validate()
-  const data = await fetchRegister(model.email, model.pwd, model.confirmPwd, model.code)
+  const data = await fetchChangePassword(model.email, model.pwd, model.confirmPwd, model.code)
   if (data.code === 200) {
     message.success(data.data)
     await router.push('/login')
   }
   else {
-    message.warning('注册失败!')
+    message.warning('修改密码失败!')
   }
 }
 const toLogin = async () => {
@@ -60,7 +60,7 @@ const toLogin = async () => {
   <div class="h-full relative bg-center bg-cover bg-no-repeat" :style="{ backgroundImage: `url(${backgroundImageURL})` }">
     <div class="absolute w-1/4 p-4 right-40 bottom-1/2 translate-y-1/2">
       <h2 class="text-white text-center pb-4 text-2xl font-mono font-bold">
-        TERRA MOURS
+          修改密码
       </h2>
       <NForm ref="formRef" :model="model" :rules="rules" size="medium" label-placement="left">
         <NFormItem path="email">

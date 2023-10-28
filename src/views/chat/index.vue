@@ -1,32 +1,28 @@
 <script setup lang='ts'>
 import { computed, onMounted, onUnmounted, ref } from 'vue'
-import { useRoute } from 'vue-router'
 import { storeToRefs } from 'pinia'
 import { NButton, NForm, NFormItem, NInput, NModal, NPopover, NPopselect, useDialog, useMessage } from 'naive-ui'
 import { Message } from './components'
 import { useScroll } from './hooks/useScroll'
-import { useChat } from './hooks/useChat'
 import { useCopyCode } from './hooks/useCopyCode'
 import { useUsingContext } from './hooks/useUsingContext'
 import HeaderComponent from './components/Header/index.vue'
 import { HoverButton, SvgIcon } from '@/components/common'
 import { useBasicLayout } from '@/hooks/useBasicLayout'
-import { useChatStore, usePromptStore, useUserStore } from '@/store'
-import { fetchChatAPIProcess } from '@/api'
+import { useChatStore, usePromptStore } from '@/store'
+import type { ChatRes } from '@/api'
+import { ChatRecordList, DeleteChatRecord, fetchChatAPIProcess } from '@/api'
 import { t } from '@/locales'
 import SubmitFooter from '@/components/common/SubmitFooter/submitFooter.vue'
 import { downloadHtml2Canvas } from '@/views/chat/hooks/useHtml2Canvas'
 // 使用复制code
 useCopyCode()
 // 添加请求终断对象
-const userStore = useUserStore()
 const controller = ref(new AbortController())
 const ganNewController = () => {
   controller.value = new AbortController()
   return controller.value
 }
-const openLongReply = import.meta.env.VITE_GLOB_OPEN_LONG_REPLY === 'true'
-const route = useRoute()
 const dialog = useDialog()
 const ms = useMessage()
 const chatStore = useChatStore()
@@ -34,14 +30,39 @@ const chatStore = useChatStore()
 const promptStore = usePromptStore()
 
 const { isMobile } = useBasicLayout()
-const { addChat, updateChat, updateChatSome, getChatByUuidAndIndex } = useChat()
 const { scrollRef, scrollToBottom, scrollToBottomIfAtBottom } = useScroll()
 const { usingContext, toggleUsingContext } = useUsingContext()
 
-const { uuid } = route.params as { uuid: string }
-// 从存储中取出对应聊天数据 uuid 标识
-const dataSources = computed(() => chatStore.getChatByUuid(+uuid))
-const conversationList = computed(() => dataSources.value.filter(item => (!item.inversion && !!item.conversationOptions)))
+// new
+const page = ref(1)
+const pageSize = ref(10)
+const chatRecords = ref<ChatRes[]>([])
+
+onMounted(async () => {
+  if (scrollRef.value)
+    scrollRef.value.addEventListener('scroll', handleScroll)
+
+  setTimeout(async () => {
+    const { data } = await ChatRecordList(page.value, pageSize.value, chatStore.active, null)
+    if (data.items != null)
+      chatRecords.value = data.items
+  }, 500) // 延迟500毫秒（0.5秒）执行
+})
+function handleScroll(event: Event) {
+  const target = event.target as HTMLElement
+  if (target.scrollTop === 0)
+    slideLoading()
+}
+/**
+ *  滑动加载
+ */
+async function slideLoading() {
+  const { data } = await ChatRecordList(page.value + 1, pageSize.value, chatStore.active, null)
+  if (data.items != null && data.items.length > 0) {
+    chatRecords.value = [...data.items, ...chatRecords.value]
+    page.value = page.value + 1
+  }
+}
 
 const prompt = ref<string>('')
 const modelType = ref<string>('gpt-3.5-turbo')
@@ -58,280 +79,92 @@ const submitFooterInputCounter = computed(() => modelOptions.find(i => i.value =
 
 // 使用storeToRefs，保证store修改后，联想部分能够重新渲染
 const { promptList: promptTemplate } = storeToRefs<any>(promptStore)
-// 2023.4.10 添加上下文
-let lastOptions: Chat.ConversationRequest = {}
-// 未知原因刷新页面，loading 状态不会重置，手动重置
-dataSources.value.forEach((item, index) => {
-  if (item.conversationOptions?.conversationId != null)
-    lastOptions = item.conversationOptions
-  if (item.loading)
-    updateChatSome(+uuid, index, { loading: false })
-})
 
 // 发起对话
-async function onConversation() {
-  let message = prompt.value
+async function ChatConversation() {
+  const message = prompt.value
   // 防止二次点击按钮重复发起
   if (loading.value)
     return
   if (!message || message.trim() === '')
     return
+  const askRecord: ChatRes = {
+    message,
+    createDate: new Date().toLocaleString(),
+    role: 'user',
+    error: false,
+    chatRecordId: 0,
+    modelType: '',
+    model: '',
+    conversationId: 0,
+    modifyDate: '',
+    promptTokens: 0,
+    completionTokens: 0,
+    totalTokens: 0
+  }
   // 添加用户输出聊天记录
-  addChat(
-    +uuid,
-    {
-      dateTime: new Date().toLocaleString(),
-      text: message,
-      inversion: true, // 用户询问
-      error: false,
-      conversationOptions: null,
-      requestOptions: { prompt: message, options: null },
-    },
-  )
-
-  // 2023.4.10 添加上下文
-  // let options: Chat.ConversationRequest = {}
-  let options: Chat.ConversationRequest = lastOptions
-  const lastContext = conversationList.value[conversationList.value.length - 1]?.conversationOptions
-
-  if (lastContext && usingContext.value)
-    options = { ...lastContext }
-
-  loading.value = true
-  prompt.value = ''
-
-  addChat(
-    +uuid,
-    {
-      dateTime: new Date().toLocaleString(),
-      text: '',
-      loading: true,
-      inversion: false, // gpt 回答
-      error: false,
-      conversationOptions: null,
-      requestOptions: { prompt: message, options: { ...options } },
-    },
-  )
-  scrollToBottom()
-
-  try {
-    let lastText = ''
-    const fetchChatAPIOnce = async () => {
-      await fetchChatAPIProcess<string>({
-        conversationId: options.conversationId,
-        model: modelType.value,
-        modelType: 0,
-        prompt: message,
-        contextCount: !usingContext.value ? 0 : null,
-        // 传入signal 代表此请求可控
-        signal: ganNewController().signal,
-        onDownloadProgress: ({ event }) => {
-          const xhr = event.target
-          const { responseText } = xhr
-          // Always process the final line
-          const lastIndex = responseText.lastIndexOf('\n', responseText.length - 2)
-          let chunk = responseText
-          if (lastIndex !== -1)
-            chunk = responseText.substring(lastIndex)
-          try {
-            const { data } = JSON.parse(chunk)
-            updateChat(
-              +uuid,
-              dataSources.value.length - 1,
-              {
-                dateTime: new Date().toLocaleString(),
-                text: lastText + (data.Message ?? ''),
-                inversion: false,
-                error: false,
-                loading: true,
-                conversationOptions: { conversationId: data.ConversationId, parentMessageId: data.ChatRecordId },
-                requestOptions: { prompt: message, options: { ...options } },
-              },
-            )
-            // 2023.4.10 添加上下文
-            if (data.ConversationId != null && data.ConversationId.length !== 0)
-              lastOptions = { conversationId: data.ConversationId, parentMessageId: data.ChatRecordId }
-
-            if (openLongReply && data.detail.choices[0].finish_reason === 'length') {
-              options.parentMessageId = data.ChatRecordId
-              lastText = data.Message
-              message = ''
-              return fetchChatAPIOnce()
-            }
-
-            scrollToBottomIfAtBottom()
-          }
-          catch (error) {
-            //
-          }
-        },
-      })
-      // 重置当前条目的loading状态
-      updateChatSome(+uuid, dataSources.value.length - 1, { loading: false })
-    }
-    await fetchChatAPIOnce()
-    userStore.refreshUserInfo()
+  chatRecords.value.push(askRecord)
+  const newRecord: ChatRes = {
+    message: '',
+    createDate: new Date().toLocaleString(),
+    role: 'assistant',
+    error: false,
+    loading: false,
+    chatRecordId: 0,
+    modelType: '',
+    model: '',
+    conversationId: 0,
+    modifyDate: '',
+    promptTokens: 0,
+    completionTokens: 0,
+    totalTokens: 0
   }
-  catch (error: any) {
-    // 测试webapi
-    const errorMessage = error?.message ?? ''
-    if (error.message === 'canceled') {
-      updateChatSome(
-        +uuid,
-        dataSources.value.length - 1,
-        {
-          loading: false,
-        },
-      )
-      scrollToBottomIfAtBottom()
-      return
-    }
-    const currentChat = getChatByUuidAndIndex(+uuid, dataSources.value.length - 1)
-    //
-    if (currentChat && currentChat?.text && currentChat!.text !== '') {
-      updateChatSome(
-        +uuid,
-        dataSources.value.length - 1,
-        {
-          text: `${currentChat!.text}\n[${errorMessage}]`,
-          error: false,
-          loading: false,
-        },
-      )
-      return
-    }
-    // 添加失败响应
-    updateChat(
-      +uuid,
-      dataSources.value.length - 1,
-      {
-        dateTime: new Date().toLocaleString(),
-        text: errorMessage,
-        inversion: false,
-        error: true,
-        loading: false,
-        conversationOptions: null,
-        requestOptions: { prompt: message, options: { ...options } },
+  chatRecords.value.push(newRecord)
+  // 调用接口后更新内容
+  const index = chatRecords.value.length - 1
+  const fetchChatAPIOnce = async () => {
+    await fetchChatAPIProcess<string>({
+      conversationId: chatStore.active,
+      model: modelType.value,
+      modelType: 0,
+      prompt: message,
+      contextCount: !usingContext.value ? 0 : null,
+      // 传入signal 代表此请求可控
+      signal: ganNewController().signal,
+      onDownloadProgress: ({ event }) => {
+        const xhr = event.target
+        const { responseText } = xhr
+        // Always process the final line
+        const lastIndex = responseText.lastIndexOf('\n', responseText.length - 2)
+        let chunk = responseText
+        if (lastIndex !== -1)
+          chunk = responseText.substring(lastIndex)
+        try {
+          const resdata = JSON.parse(chunk)
+          if (resdata.code !== 200) {
+            chatRecords.value[index].message = resdata.message
+            chatRecords.value[index].loading = false
+          }
+          else {
+            chatRecords.value[index].loading = true
+            // 更新新增记录的message字段的值
+            chatRecords.value[index].message = resdata.data.Message ?? ''
+            if (chatStore.active === 0)
+              chatStore.active = resdata.data.ConversationId
+          }
+          scrollToBottomIfAtBottom()
+        }
+        catch (error: any) {
+          chatRecords.value[index].message = error.toString()
+          chatRecords.value[index].loading = false
+        }
       },
-    )
-    scrollToBottomIfAtBottom()
+    })
+    // 重置当前条目的loading状态
+    chatRecords.value[index].loading = false
+    prompt.value = ''
   }
-  finally {
-    loading.value = false
-  }
-}
-
-async function onRegenerate(index: number) {
-  if (loading.value)
-    return
-
-  const { requestOptions } = dataSources.value[index]
-
-  let message = requestOptions?.prompt ?? ''
-
-  let options: Chat.ConversationRequest = {}
-
-  if (requestOptions.options)
-    options = { ...requestOptions.options }
-
-  loading.value = true
-
-  updateChat(
-    +uuid,
-    index,
-    {
-      dateTime: new Date().toLocaleString(),
-      text: '',
-      inversion: false,
-      error: false,
-      loading: true,
-      conversationOptions: null,
-      requestOptions: { prompt: message, options: { ...options } },
-    },
-  )
-
-  try {
-    let lastText = ''
-    const fetchChatAPIOnce = async () => {
-      await fetchChatAPIProcess<Chat.ConversationResponse>({
-        prompt: message,
-        conversationId: options.conversationId,
-        model: 'gpt-3.5-turbo',
-        modelType: 0,
-        contextCount: !usingContext.value ? 0 : null,
-        signal: ganNewController().signal,
-        onDownloadProgress: ({ event }) => {
-          const xhr = event.target
-          const { responseText } = xhr
-
-          // Always process the final line
-          const lastIndex = responseText.lastIndexOf('\n', responseText.length - 2)
-          let chunk = responseText
-          if (lastIndex !== -1)
-            chunk = responseText.substring(lastIndex)
-          try {
-            const data = JSON.parse(chunk)
-            updateChat(
-              +uuid,
-              index,
-              {
-                dateTime: new Date().toLocaleString(),
-                text: lastText + (data.text ?? ''),
-                inversion: false,
-                error: false,
-                loading: true,
-                conversationOptions: { conversationId: data.conversationId, parentMessageId: data.id },
-                requestOptions: { prompt: message, options: { ...options } },
-              },
-            )
-
-            if (openLongReply && data.detail.choices[0].finish_reason === 'length') {
-              options.parentMessageId = data.id
-              lastText = data.text
-              message = ''
-              return fetchChatAPIOnce()
-            }
-          }
-          catch (error) {
-            //
-          }
-        },
-      })
-      updateChatSome(+uuid, index, { loading: false })
-    }
-    await fetchChatAPIOnce()
-  }
-  catch (error: any) {
-    if (error.message === 'canceled') {
-      updateChatSome(
-        +uuid,
-        index,
-        {
-          loading: false,
-        },
-      )
-      return
-    }
-
-    const errorMessage = error?.message ?? t('common.wrong')
-
-    updateChat(
-      +uuid,
-      index,
-      {
-        dateTime: new Date().toLocaleString(),
-        text: errorMessage,
-        inversion: false,
-        error: true,
-        loading: false,
-        conversationOptions: null,
-        requestOptions: { prompt: message, options: { ...options } },
-      },
-    )
-  }
-  finally {
-    loading.value = false
-  }
+  await fetchChatAPIOnce()
 }
 
 // 点击导出图片
@@ -371,24 +204,11 @@ function handleDelete(index: number) {
     content: t('chat.deleteMessageConfirm'),
     positiveText: t('common.yes'),
     negativeText: t('common.no'),
-    onPositiveClick: () => {
-      chatStore.deleteChatByUuid(+uuid, index)
-    },
-  })
-}
-
-// 删除所有记录
-function handleClear() {
-  if (loading.value)
-    return
-
-  dialog.warning({
-    title: t('chat.clearChat'),
-    content: t('chat.clearChatConfirm'),
-    positiveText: t('common.yes'),
-    negativeText: t('common.no'),
-    onPositiveClick: () => {
-      chatStore.clearChatByUuid(+uuid)
+    onPositiveClick: async () => {
+      const selectedItem = chatRecords.value[index]
+      const data = await DeleteChatRecord(selectedItem.chatRecordId)
+      if (data.code === 200)
+        chatRecords.value.splice(index, 1)
     },
   })
 }
@@ -460,7 +280,7 @@ onUnmounted(() => {
           class="w-full max-w-screen-xl m-auto dark:bg-[#101014]"
           :class="[isMobile ? 'p-2' : 'p-4']"
         >
-          <template v-if="!dataSources.length">
+          <template v-if="!chatRecords.length">
             <div class="flex items-center justify-center mt-4 text-center text-neutral-300">
               <SvgIcon icon="ri:bubble-chart-fill" class="mr-2 text-3xl" />
               <span>QQ群：814880639 </span>
@@ -472,14 +292,13 @@ onUnmounted(() => {
           <template v-else>
             <div>
               <Message
-                v-for="(item, index) of dataSources"
+                v-for="(item, index) of chatRecords"
                 :key="index"
-                :date-time="item.dateTime"
-                :text="item.text"
-                :inversion="item.inversion"
+                :date-time="item.createDate"
+                :text="item.message"
+                :inversion="item.role === 'user'"
                 :error="item.error"
                 :loading="item.loading"
-                @regenerate="onRegenerate(index)"
                 @delete="handleDelete(index)"
               />
               <div class="sticky bottom-0 left-0 flex justify-center">
@@ -503,7 +322,7 @@ onUnmounted(() => {
       :button-disabled="buttonDisabled"
       :counter="submitFooterInputCounter"
       :placeholder="placeholder"
-      @submit="onConversation"
+      @submit="ChatConversation"
     >
       <HoverButton v-if="!isMobile" @click="showModal = true">
         <span class="text-xl text-[#4f555e] dark:text-white">
@@ -513,16 +332,6 @@ onUnmounted(() => {
             </template>
             <span>聊天设置</span>
           </NPopover>
-        </span>
-      </HoverButton>
-      <HoverButton @click="handleClear">
-        <span class="text-xl text-[#4f555e] dark:text-white">
-          <SvgIcon icon="ri:delete-bin-line" />
-        </span>
-      </HoverButton>
-      <HoverButton v-if="!isMobile" @click="handleExport">
-        <span class="text-xl text-[#4f555e] dark:text-white">
-          <SvgIcon icon="ri:download-2-line" />
         </span>
       </HoverButton>
       <HoverButton v-if="!isMobile" @click="toggleUsingContext">

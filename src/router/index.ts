@@ -49,7 +49,11 @@ const routes: RouteRecordRaw[] = [
     name: 'register',
     component: () => import('@/views/chat/layout/Register.vue'),
   },
-
+  {
+    path: '/changePassword',
+    name: 'changePassword',
+    component: () => import('@/views/chat/layout/ChangePassword.vue'),
+  },
   {
     path: '/:pathMatch(.*)*',
     name: 'notFound',

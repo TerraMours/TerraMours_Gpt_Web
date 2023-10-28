@@ -4,26 +4,22 @@ import { computed, ref, watch } from 'vue'
 import { NButton, NLayoutSider } from 'naive-ui'
 import List from './List.vue'
 import Footer from './Footer.vue'
-import { useAppStore, useChatStore } from '@/store'
+import { useAppStore } from '@/store'
 import { useBasicLayout } from '@/hooks/useBasicLayout'
 import { PromptStore,Goods } from '@/components/common'
 
 const appStore = useAppStore()
-const chatStore = useChatStore()
 
 const { isMobile } = useBasicLayout()
 const show = ref(false)
 const showgood = ref(false)
 const collapsed = computed(() => appStore.siderCollapsed)
 
-function handleAdd() {
-  chatStore.addHistory({ title: 'New Chat', uuid: Date.now(), isEdit: false })
-  if (isMobile.value)
-    appStore.setSiderCollapsed(true)
+// List组件实例
+const ListComp = ref(null)
+const addConversation = () => {
+  ListComp.value.addConversation("New Chat")
 }
-// function goToGithub() {
-//   window.open("https://sp.terramours.site/", "_blank")
-// }
 
 function handleUpdateCollapsed() {
   appStore.setSiderCollapsed(!collapsed.value)
@@ -75,12 +71,12 @@ watch(
     <div class="flex flex-col h-full" :style="mobileSafeArea">
       <main class="flex flex-col flex-1 min-h-0">
         <div class="p-4">
-          <NButton dashed block @click="handleAdd">
+          <NButton dashed block @click="addConversation">
             {{ $t('chat.newChatButton') }}
           </NButton>
         </div>
         <div class="flex-1 min-h-0 pb-4 overflow-hidden">
-          <List />
+          <List ref='ListComp'/>
         </div>
         <div class="p-4">
           <NButton block @click="showgood = true">

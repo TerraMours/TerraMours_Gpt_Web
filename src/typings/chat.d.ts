@@ -10,6 +10,8 @@ declare namespace Chat {
 		requestOptions: { prompt: string; options?: ConversationRequest | null }
 	}
 
+
+
 	interface History {
 		title: string
 		isEdit: boolean
