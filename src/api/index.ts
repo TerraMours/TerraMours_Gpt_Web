@@ -37,7 +37,7 @@ export function fetchChatAPIProcess<T = any>(
   params: {
     prompt: string
     // 会话ID
-    conversationId?: number
+    conversationId: number | null
     model: string
     modelType: number
     contextCount: number | null
