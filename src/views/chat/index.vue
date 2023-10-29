@@ -110,7 +110,7 @@ async function ChatConversation() {
       createDate: new Date().toLocaleString(),
       role: 'assistant',
       error: false,
-      loading: false,
+      loading: true,
       chatRecordId: 0,
       modelType: '',
       model: '',
@@ -159,8 +159,8 @@ async function ChatConversation() {
             scrollToBottomIfAtBottom()
           }
           catch (error: any) {
-            chatRecords.value[index].message = error.toString()
-            chatRecords.value[index].loading = false
+            // chatRecords.value[index].message = error.toString()
+            // chatRecords.value[index].loading = false
           }
         },
       })
