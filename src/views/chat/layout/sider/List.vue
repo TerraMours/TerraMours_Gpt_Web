@@ -26,9 +26,8 @@ async function handleSelect({ conversationId }: ChatConversationRes) {
 async function handleEdit(conversation: ChatConversationRes, isEdit: boolean, event?: MouseEvent) {
   event?.stopPropagation()
   conversation.isEdit = isEdit
-  if (isEdit === false) {
+  if (isEdit === false)
     await ChangeChatConversation(conversation.conversationId, conversation.conversationName)
-  }
 }
 
 async function handleDelete(index: number, event?: MouseEvent | TouchEvent) {
@@ -50,9 +49,8 @@ async function handleEnter(conversation: ChatConversationRes, isEdit: boolean, e
   event?.stopPropagation()
   if (event.key === 'Enter') {
     conversation.isEdit = isEdit
-    if (isEdit === false) {
+    if (isEdit === false)
       await ChangeChatConversation(conversation.conversationId, conversation.conversationName)
-    }
   }
 }
 
@@ -63,8 +61,11 @@ onMounted(async () => {
   const { data } = await ChatConversationList(1, 100, null)
   if (data.items != null) {
     conversationList.value = data.items
-    if (chatStore.active === 0)
-      chatStore.active = data.items[0].conversationId
+    if (data.items.length > 0) {
+      if (!data.items.some(m => m.conversationId === chatStore.active))
+        chatStore.active = data.items[0].conversationId
+    }
+    else { chatStore.active = 0 }
   }
 })
 
