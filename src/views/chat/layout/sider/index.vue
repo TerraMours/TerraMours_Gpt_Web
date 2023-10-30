@@ -6,7 +6,7 @@ import List from './List.vue'
 import Footer from './Footer.vue'
 import { useAppStore } from '@/store'
 import { useBasicLayout } from '@/hooks/useBasicLayout'
-import { PromptStore,Goods } from '@/components/common'
+import { Goods, PromptStore } from '@/components/common'
 
 const appStore = useAppStore()
 
@@ -16,9 +16,10 @@ const showgood = ref(false)
 const collapsed = computed(() => appStore.siderCollapsed)
 
 // List组件实例
-const ListComp = ref(null)
+const ListComp = ref<null | any>(null) // 将类型设置为允许为 null
+
 const addConversation = () => {
-  ListComp.value.addConversation("New Chat")
+  ListComp!.value.addConversation('New Chat') // 使用非空断言操作符
 }
 
 function handleUpdateCollapsed() {
@@ -65,8 +66,8 @@ watch(
     collapse-mode="transform"
     bordered
     :style="getMobileClass"
+    class="h-full"
     @update-collapsed="handleUpdateCollapsed"
-		class="h-full"
   >
     <div class="flex flex-col h-full" :style="mobileSafeArea">
       <main class="flex flex-col flex-1 min-h-0">
@@ -76,7 +77,7 @@ watch(
           </NButton>
         </div>
         <div class="flex-1 min-h-0 pb-4 overflow-hidden">
-          <List ref='ListComp'/>
+          <List ref="ListComp" />
         </div>
         <div class="p-4">
           <NButton block @click="showgood = true">
@@ -89,9 +90,8 @@ watch(
             {{ $t('store.siderButton') }}
           </NButton>
         </div>
-
       </main>
-      <Footer @openStore="showgood = true"/>
+      <Footer @openStore="showgood = true" />
     </div>
   </NLayoutSider>
   <template v-if="isMobile">

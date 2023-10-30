@@ -82,89 +82,97 @@ const { promptList: promptTemplate } = storeToRefs<any>(promptStore)
 
 // 发起对话
 async function ChatConversation() {
-  const message = prompt.value
-  // 防止二次点击按钮重复发起
-  if (loading.value)
-    return
-  if (!message || message.trim() === '')
-    return
-  const askRecord: ChatRes = {
-    message,
-    createDate: new Date().toLocaleString(),
-    role: 'user',
-    error: false,
-    chatRecordId: 0,
-    modelType: '',
-    model: '',
-    conversationId: 0,
-    modifyDate: '',
-    promptTokens: 0,
-    completionTokens: 0,
-    totalTokens: 0
-  }
-  // 添加用户输出聊天记录
-  chatRecords.value.push(askRecord)
-  const newRecord: ChatRes = {
-    message: '',
-    createDate: new Date().toLocaleString(),
-    role: 'assistant',
-    error: false,
-    loading: false,
-    chatRecordId: 0,
-    modelType: '',
-    model: '',
-    conversationId: 0,
-    modifyDate: '',
-    promptTokens: 0,
-    completionTokens: 0,
-    totalTokens: 0
-  }
-  chatRecords.value.push(newRecord)
-  // 调用接口后更新内容
-  const index = chatRecords.value.length - 1
-  const fetchChatAPIOnce = async () => {
-    await fetchChatAPIProcess<string>({
-      conversationId: chatStore.active,
-      model: modelType.value,
-      modelType: 0,
-      prompt: message,
-      contextCount: !usingContext.value ? 0 : null,
-      // 传入signal 代表此请求可控
-      signal: ganNewController().signal,
-      onDownloadProgress: ({ event }) => {
-        const xhr = event.target
-        const { responseText } = xhr
-        // Always process the final line
-        const lastIndex = responseText.lastIndexOf('\n', responseText.length - 2)
-        let chunk = responseText
-        if (lastIndex !== -1)
-          chunk = responseText.substring(lastIndex)
-        try {
-          const resdata = JSON.parse(chunk)
-          if (resdata.code !== 200) {
-            chatRecords.value[index].message = resdata.message
-            chatRecords.value[index].loading = false
+  try {
+    const message = prompt.value
+    // 防止二次点击按钮重复发起
+    if (loading.value)
+      return
+    if (!message || message.trim() === '')
+      return
+    const askRecord: ChatRes = {
+      message,
+      createDate: new Date().toLocaleString(),
+      role: 'user',
+      error: false,
+      chatRecordId: 0,
+      modelType: '',
+      model: '',
+      conversationId: 0,
+      modifyDate: '',
+      promptTokens: 0,
+      completionTokens: 0,
+      totalTokens: 0,
+    }
+    // 添加用户输出聊天记录
+    chatRecords.value.push(askRecord)
+    const newRecord: ChatRes = {
+      message: '',
+      createDate: new Date().toLocaleString(),
+      role: 'assistant',
+      error: false,
+      loading: true,
+      chatRecordId: 0,
+      modelType: '',
+      model: '',
+      conversationId: 0,
+      modifyDate: '',
+      promptTokens: 0,
+      completionTokens: 0,
+      totalTokens: 0,
+    }
+    chatRecords.value.push(newRecord)
+    // 发起新会话拉到最底部
+    scrollToBottom()
+    loading.value = true
+    // 调用接口后更新内容
+    const index = chatRecords.value.length - 1
+    const fetchChatAPIOnce = async () => {
+      await fetchChatAPIProcess<string>({
+        conversationId: chatStore.active,
+        model: modelType.value,
+        modelType: 0,
+        prompt: message,
+        contextCount: !usingContext.value ? 0 : null,
+        // 传入signal 代表此请求可控
+        signal: ganNewController().signal,
+        onDownloadProgress: ({ event }) => {
+          const xhr = event.target
+          const { responseText } = xhr
+          // Always process the final line
+          const lastIndex = responseText.lastIndexOf('\n', responseText.length - 2)
+          let chunk = responseText
+          if (lastIndex !== -1)
+            chunk = responseText.substring(lastIndex)
+          try {
+            const resdata = JSON.parse(chunk)
+            if (resdata.code !== 200) {
+              chatRecords.value[index].message = resdata.message
+              chatRecords.value[index].loading = false
+            }
+            else {
+              chatRecords.value[index].loading = true
+              // 更新新增记录的message字段的值
+              chatRecords.value[index].message = resdata.data.Message ?? ''
+              if (chatStore.active === 0)
+                chatStore.active = resdata.data.ConversationId
+            }
+            scrollToBottomIfAtBottom()
           }
-          else {
-            chatRecords.value[index].loading = true
-            // 更新新增记录的message字段的值
-            chatRecords.value[index].message = resdata.data.Message ?? ''
-            if (chatStore.active === 0)
-              chatStore.active = resdata.data.ConversationId
+          catch (error: any) {
+            // chatRecords.value[index].message = error.toString()
+            // chatRecords.value[index].loading = false
           }
-          scrollToBottomIfAtBottom()
-        }
-        catch (error: any) {
-          chatRecords.value[index].message = error.toString()
-          chatRecords.value[index].loading = false
-        }
-      },
-    })
-    // 重置当前条目的loading状态
-    chatRecords.value[index].loading = false
-    prompt.value = ''
+        },
+      })
+      // 重置当前条目的loading状态
+      chatRecords.value[index].loading = false
+      prompt.value = ''
+    }
+    await fetchChatAPIOnce()
   }
-  await fetchChatAPIOnce()
+  finally {
+    loading.value = false
+  }
 }
 
 // 点击导出图片
@@ -218,6 +226,8 @@ function handleStop() {
   if (loading.value) {
     controller.value.abort()
     loading.value = false
+    // 刷新loading状态
+    chatRecords.value.forEach(m => m.loading = false)
   }
 }
 
