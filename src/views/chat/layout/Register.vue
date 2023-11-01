@@ -41,14 +41,19 @@ function handleSmsCode() {
 
 // 点击注册按钮
 async function handleSubmit() {
-  await formRef.value?.validate()
-  const data = await fetchRegister(model.email, model.pwd, model.confirmPwd, model.code)
-  if (data.code === 200) {
-    message.success(data.data)
-    await router.push('/login')
+  try {
+    await formRef.value?.validate()
+    const data = await fetchRegister(model.email, model.pwd, model.confirmPwd, model.code)
+    if (data.code === 200) {
+      message.success(data.data)
+      await router.push('/login')
+    }
+    else {
+      message.warning('注册失败!')
+    }
   }
-  else {
-    message.warning('注册失败!')
+  catch (error: any) {
+    message.warning(error.message ?? 'error')
   }
 }
 const toLogin = async () => {
