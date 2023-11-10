@@ -38,17 +38,27 @@ const router = useRouter()
 function handleSmsCode() {
   getEmailCode(model.email)
 }
-
+const submitLoading = ref(false)
 // 点击注册按钮
 async function handleSubmit() {
+  if (submitLoading.value)
+    return
   await formRef.value?.validate()
-  const data = await fetchChangePassword(model.email, model.pwd, model.confirmPwd, model.code)
-  if (data.code === 200) {
-    message.success(data.data)
-    await router.push('/login')
+  try {
+    const data = await fetchChangePassword(model.email, model.pwd, model.confirmPwd, model.code)
+    if (data.code === 200) {
+      message.success(data.data)
+      await router.push('/login')
+    }
+    else {
+      message.warning('修改密码失败!')
+    }
   }
-  else {
-    message.warning('修改密码失败!')
+  catch (error: any) {
+    message.warning(error.message ?? 'error')
+  }
+  finally {
+    submitLoading.value = false
   }
 }
 const toLogin = async () => {
@@ -60,7 +70,7 @@ const toLogin = async () => {
   <div class="h-full relative bg-center bg-cover bg-no-repeat" :style="{ backgroundImage: `url(${backgroundImageURL})` }">
     <div class="absolute w-1/4 p-4 right-40 bottom-1/2 translate-y-1/2">
       <h2 class="text-white text-center pb-4 text-2xl font-mono font-bold">
-          修改密码
+        修改密码
       </h2>
       <NForm ref="formRef" :model="model" :rules="rules" size="medium" label-placement="left">
         <NFormItem path="email">
@@ -99,6 +109,7 @@ const toLogin = async () => {
             type="primary"
             size="large"
             :block="true"
+						:loading="submitLoading"
             @click="handleSubmit"
           >
             确定
