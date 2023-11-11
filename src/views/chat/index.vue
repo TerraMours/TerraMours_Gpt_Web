@@ -9,7 +9,7 @@ import { useUsingContext } from './hooks/useUsingContext'
 import HeaderComponent from './components/Header/index.vue'
 import { HoverButton, SvgIcon } from '@/components/common'
 import { useBasicLayout } from '@/hooks/useBasicLayout'
-import { useChatStore, usePromptStore } from '@/store'
+import {useChatStore, usePromptStore, useSettingStore} from '@/store'
 import type { ChatRes } from '@/api'
 import { ChatRecordList, DeleteChatRecord, fetchChatAPIProcess } from '@/api'
 import { t } from '@/locales'
@@ -28,6 +28,8 @@ const ms = useMessage()
 const chatStore = useChatStore()
 // 添加PromptStore
 const promptStore = usePromptStore()
+// 系统提示词
+const settingStore = useSettingStore()
 
 const { isMobile } = useBasicLayout()
 const { scrollRef, scrollToBottom, scrollToBottomIfAtBottom } = useScroll()
@@ -363,7 +365,7 @@ onUnmounted(() => {
         require-mark-placement="right-hanging"
       >
         <NFormItem label="系统提示词" path="verifycationCode">
-          <NInput />
+          <NInput v-model:value="settingStore.systemMessage"/>
         </NFormItem>
         <NFormItem label="模型选择">
           <NPopselect

@@ -55,6 +55,8 @@ service.interceptors.response.use(
   async (error: AxiosError) => {
     if (error.response?.status === 401)
       openDialog(true)
+    if (error.response?.status === 400)
+      error.message = error.response?.data.errors.UserAccount
     return Promise.reject(error)
   },
 )

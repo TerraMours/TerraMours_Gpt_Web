@@ -28,6 +28,7 @@ function setupPlugins(env: ImportMetaEnv): PluginOption[] {
 
 export default defineConfig((env) => {
   const viteEnv = loadEnv(env.mode, process.cwd()) as unknown as ImportMetaEnv
+  const isProduction = true
   return {
     resolve: {
       alias: {
@@ -53,6 +54,15 @@ export default defineConfig((env) => {
       sourcemap: false,
       commonjsOptions: {
         ignoreTryCatch: false,
+      },
+      minify: isProduction,
+      brotliSize: isProduction,
+      rollupOptions: {
+        output: {
+          manualChunks: {
+            vendor: ['vue', 'vue-router'], // 将第三方库单独打包成vendor包
+          },
+        },
       },
     },
   }
