@@ -57,6 +57,8 @@ service.interceptors.response.use(
       openDialog(true)
     if (error.response?.status === 400)
       error.message = error.response?.data.errors.UserAccount
+		if (error.response?.status === 500)
+			error.message = error.response?.data
     return Promise.reject(error)
   },
 )
