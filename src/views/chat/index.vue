@@ -9,7 +9,7 @@ import { useUsingContext } from './hooks/useUsingContext'
 import HeaderComponent from './components/Header/index.vue'
 import { HoverButton, SvgIcon } from '@/components/common'
 import { useBasicLayout } from '@/hooks/useBasicLayout'
-import {useChatStore, usePromptStore, useSettingStore} from '@/store'
+import { useChatStore, usePromptStore, useSettingStore } from '@/store'
 import type { ChatRes } from '@/api'
 import { ChatRecordList, DeleteChatRecord, fetchChatAPIProcess } from '@/api'
 import { t } from '@/locales'
@@ -75,6 +75,7 @@ const modelOptions: Array<{ label: string; value: string; length: number }> = [
   { label: 'gpt-3.5-turbo', value: 'gpt-3.5-turbo', length: 2000 },
   { label: 'gpt-3.5-turbo-16k(会员专属)', value: 'gpt-3.5-turbo-16k', length: 4000 },
   { label: 'gpt-4(余额计费)', value: 'gpt-4', length: 4000 },
+  { label: 'chatGLM', value: 'ChatGLM', length: 4000 },
 ]
 // 计算每一种模式下可以输入的字符数
 const submitFooterInputCounter = computed(() => modelOptions.find(i => i.value === modelType.value)?.length || 0)
@@ -128,49 +129,55 @@ async function ChatConversation() {
     loading.value = true
     // 调用接口后更新内容
     const index = chatRecords.value.length - 1
-    const fetchChatAPIOnce = async () => {
-      await fetchChatAPIProcess<string>({
-        conversationId: chatStore.active,
-        model: modelType.value,
-        modelType: 0,
-        prompt: message,
-        contextCount: !usingContext.value ? 0 : null,
-        // 传入signal 代表此请求可控
-        signal: ganNewController().signal,
-        onDownloadProgress: ({ event }) => {
-          const xhr = event.target
-          const { responseText } = xhr
-          // Always process the final line
-          const lastIndex = responseText.lastIndexOf('\n', responseText.length - 2)
-          let chunk = responseText
-          if (lastIndex !== -1)
-            chunk = responseText.substring(lastIndex)
-          try {
-            const resdata = JSON.parse(chunk)
-            if (resdata.code !== 200) {
-              chatRecords.value[index].message = resdata.message
-              chatRecords.value[index].loading = false
+    try {
+      const fetchChatAPIOnce = async () => {
+        await fetchChatAPIProcess<string>({
+          conversationId: chatStore.active,
+          model: modelType.value,
+          modelType: 0,
+          prompt: message,
+          contextCount: !usingContext.value ? 0 : null,
+          // 传入signal 代表此请求可控
+          signal: ganNewController().signal,
+          onDownloadProgress: ({ event }) => {
+            const xhr = event.target
+            const { responseText } = xhr
+            // Always process the final line
+            const lastIndex = responseText.lastIndexOf('\n', responseText.length - 2)
+            let chunk = responseText
+            if (lastIndex !== -1)
+              chunk = responseText.substring(lastIndex)
+            try {
+              const resdata = JSON.parse(chunk)
+              if (resdata.code !== 200) {
+                chatRecords.value[index].message = resdata.message
+                chatRecords.value[index].loading = false
+              }
+              else {
+                chatRecords.value[index].loading = true
+                // 更新新增记录的message字段的值
+                chatRecords.value[index].message = resdata.data.Message ?? ''
+                if (chatStore.active === 0)
+                  chatStore.active = resdata.data.ConversationId
+              }
+              scrollToBottomIfAtBottom()
             }
-            else {
-              chatRecords.value[index].loading = true
-              // 更新新增记录的message字段的值
-              chatRecords.value[index].message = resdata.data.Message ?? ''
-              if (chatStore.active === 0)
-                chatStore.active = resdata.data.ConversationId
-            }
-            scrollToBottomIfAtBottom()
-          }
-          catch (error: any) {
+            catch (error: any) {
             // chatRecords.value[index].message = error.toString()
             // chatRecords.value[index].loading = false
-          }
-        },
-      })
-      // 重置当前条目的loading状态
-      chatRecords.value[index].loading = false
-      prompt.value = ''
+            }
+          },
+        })
+        // 重置当前条目的loading状态
+        chatRecords.value[index].loading = false
+        prompt.value = ''
+      }
+      await fetchChatAPIOnce()
     }
-    await fetchChatAPIOnce()
+    catch (error: any) {
+      chatRecords.value[index].message = error.toString()
+      chatRecords.value[index].loading = false
+    }
   }
   finally {
     loading.value = false
@@ -365,7 +372,7 @@ onUnmounted(() => {
         require-mark-placement="right-hanging"
       >
         <NFormItem label="系统提示词" path="verifycationCode">
-          <NInput v-model:value="settingStore.systemMessage"/>
+          <NInput v-model:value="settingStore.systemMessage" />
         </NFormItem>
         <NFormItem label="模型选择">
           <NPopselect
