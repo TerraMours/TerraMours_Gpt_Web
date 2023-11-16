@@ -52,7 +52,7 @@ const formData = reactive<SubmitDTO>({
   negativePrompt: authStore.imgKey ?? '',
   modelType: 1,
   connectionId: null,
-  model: null,
+  ImgModel: null,
 })
 
 const submit = async () => {
@@ -234,10 +234,10 @@ onBeforeMount(() => {
           <NButton>{{ modelTypeOptions.find(i => i.value === formData.modelType)?.label || '二次元' }}</NButton>
         </NPopselect>
         <NPopselect
-          v-model:value="formData.model" :options="modelOptions" trigger="click"
-          :on-update:value="(value) => { formData.model = value;formData.Count = 1 }"
+					v-model:value="formData.ImgModel" :options="modelOptions" trigger="click"
+					:on-update:value="(value) => { formData.ImgModel = value;formData.Count = 1 }"
         >
-          <NButton>{{ modelOptions.find(i => i.value === formData.model)?.label || '二次元' }}</NButton>
+          <NButton>{{ modelOptions.find(i => i.value === formData.ImgModel)?.label || '二次元' }}</NButton>
         </NPopselect>
         <HoverButton @click="showModal = true">
           <span class="text-xl text-[#4f555e] dark:text-white">

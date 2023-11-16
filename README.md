@@ -46,6 +46,9 @@ TerraMours-Gpt-Web基于vue3.0+ts+naive UI+vite的ChatGPT项目前端。
 
 
 ## 更新记录
+2023.11.16 V1.1.1：
+1.解决更新key池后的部分bug
+
 2023.11.15 V1.1：
 1.新增对 ChatGLM 的支持，前端模型选择添加 ChatGLM
 2.重构key池接口。新key池可设置指定模型
