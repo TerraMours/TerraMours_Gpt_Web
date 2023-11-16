@@ -183,7 +183,7 @@ export interface SubmitDTO {
   connectionId: any
   Count: number
   Size: number
-  model: string | null
+  ImgModel: string | null
 }
 
 export function GenerateGraph(submitDTO: SubmitDTO) {

@@ -28,6 +28,9 @@ Official website: https://terramours.site/
 - **Order List**: View generated orders.
 
 ## Update History
+2023.11.16 V1.1.1：
+1. Resolve some bugs after updating the key pool
+
 2023.11.15 V1.1:
 1. Added support for ChatGLM. Frontend model selection now includes ChatGLM.
 2. Refactored the key pool interface. The new key pool allows for specifying a particular model.
