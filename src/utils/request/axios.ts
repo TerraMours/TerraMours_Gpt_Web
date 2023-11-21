@@ -2,13 +2,16 @@ import axios, {AxiosError, type AxiosResponse} from 'axios';
 import { createDiscreteApi } from 'naive-ui'
 import { useAuthStore } from '@/store'
 import { router } from '@/router'
-
+let isDialogShowed = false
 const { message, dialog } = createDiscreteApi(['message', 'dialog'])
 const htmlElement = document.querySelector('html')
 const envBaseUrl = htmlElement ? htmlElement.getAttribute('env_now') : null
 // 优先获取环境变量中的值，没有传再获取envconfig的值
 const baseUrl = envBaseUrl !== null ? envBaseUrl : import.meta.env.VITE_GLOB_API_URL
 const openDialog = (isOutTime = false) => {
+	if (isDialogShowed)
+		 return
+	isDialogShowed = true
   const content = isOutTime ? '用户信息已过期，请重新登录' : '如需体验全部功能请登录'
   dialog.info({
     title: '温馨提示',
@@ -16,10 +19,12 @@ const openDialog = (isOutTime = false) => {
     positiveText: '去登录',
     negativeText: '再想想',
     onPositiveClick: async () => {
+			isDialogShowed = false
       await router.push('/login')
     },
     onNegativeClick: () => {
       message.info('期待您的体验')
+			isDialogShowed = false
     },
   })
 }
