@@ -71,11 +71,34 @@ const modelType = ref<string>('gpt-3.5-turbo')
 const loading = ref<boolean>(false)
 const showModal = ref(false)
 
-const modelOptions: Array<{ label: string; value: string; length: number }> = [
-  { label: 'gpt-3.5-turbo', value: 'gpt-3.5-turbo', length: 2000 },
-  { label: 'gpt-3.5-turbo-16k(会员专属)', value: 'gpt-3.5-turbo-16k', length: 4000 },
-  { label: 'gpt-4(余额计费)', value: 'gpt-4', length: 4000 },
-  { label: 'chatGLM', value: 'ChatGLM', length: 4000 },
+const modelOptions: Array<{ label: string; value: string; length: number;disabled: boolean }> = [
+	{ label: 'ChatGpt', value: 'ChatGpt', length: 4000, disabled: true },
+  { label: 'gpt-3.5-turbo', value: 'gpt-3.5-turbo', length: 2000, disabled: false },
+  { label: 'gpt-3.5-turbo-16k(会员专属)', value: 'gpt-3.5-turbo-16k', length: 4000, disabled: false },
+  { label: 'gpt-4(余额计费)', value: 'gpt-4', length: 4000, disabled: false },
+	{ label: 'chatGLM', value: 'chatGLM', length: 4000, disabled: true },
+  { label: 'chatGLM', value: 'ChatGLM', length: 4000, disabled: false },
+  { label: '文心千帆', value: '文心千帆', length: 4000, disabled: true },
+  { label: 'ERNIE_Bot_4', value: 'completions_pro', length: 4000, disabled: false },
+  { label: 'ERNIE_Bot_8K', value: 'ernie_bot_8k', length: 4000, disabled: false },
+  { label: 'ERNIE_Bot', value: 'completions', length: 4000, disabled: false },
+  { label: 'ERNIE_Bot_turbo', value: 'eb-instant', length: 4000, disabled: false },
+  { label: 'ERNIE_Bot_turbo_AI', value: 'ai_apaas', length: 4000, disabled: false },
+  { label: 'BLOOMZ_7B', value: 'bloomz_7b1', length: 4000, disabled: false },
+  { label: 'Qianfan_BLOOMZ_7B_compressed', value: 'qianfan_bloomz_7b_compressed', length: 4000, disabled: false },
+  { label: 'Llama_2_7b_chat', value: 'llama_2_7b', length: 4000, disabled: false },
+  { label: 'Llama_2_13b_chat', value: 'llama_2_13b', length: 4000, disabled: false },
+  { label: 'Llama_2_70b_chat', value: 'llama_2_70b', length: 4000, disabled: false },
+  { label: 'Qianfan_Chinese_Llama_2_7B', value: 'qianfan_chinese_llama_2_7b', length: 4000, disabled: false },
+  { label: 'Qianfan_Chinese_Llama_2_13B', value: 'qianfan_chinese_llama_2_13b', length: 4000, disabled: false },
+  { label: 'ChatGLM2_6B_32K', value: 'chatglm2_6b_32k', length: 4000, disabled: false },
+  { label: 'XuanYuan_70B_Chat_4bit', value: 'xuanyuan_70b_chat', length: 4000, disabled: false },
+  { label: 'AquilaChat_7B', value: 'aquilachat_7b', length: 4000, disabled: false },
+  { label: '同义千问', value: '同义千问', length: 4000, disabled: true },
+  { label: 'qwen-max', value: 'qwen-max', length: 4000, disabled: false },
+  { label: 'qwen-turbo', value: 'qwen-turbo', length: 4000, disabled: false },
+  { label: 'qwen-plus', value: 'qwen-plus', length: 4000, disabled: false },
+
 ]
 // 计算每一种模式下可以输入的字符数
 const submitFooterInputCounter = computed(() => modelOptions.find(i => i.value === modelType.value)?.length || 0)
@@ -343,6 +366,12 @@ onUnmounted(() => {
       :placeholder="placeholder"
       @submit="ChatConversation"
     >
+      <NPopselect
+        v-model:value="modelType" :options="modelOptions" trigger="click" scrollable size="large"
+        :on-update:value="(value) => modelType = value"
+      >
+        <NButton>{{ modelOptions.find(i => i.value === modelType)?.label || '请选择模型' }}</NButton>
+      </NPopselect>
       <HoverButton v-if="!isMobile" @click="showModal = true">
         <span class="text-xl text-[#4f555e] dark:text-white">
           <NPopover trigger="hover">
@@ -373,14 +402,6 @@ onUnmounted(() => {
       >
         <NFormItem label="系统提示词" path="verifycationCode">
           <NInput v-model:value="settingStore.systemMessage" />
-        </NFormItem>
-        <NFormItem label="模型选择">
-          <NPopselect
-            v-model:value="modelType" :options="modelOptions" trigger="click"
-            :on-update:value="(value) => modelType = value"
-          >
-            <NButton>{{ modelOptions.find(i => i.value === modelType)?.label || '请选择模型' }}</NButton>
-          </NPopselect>
         </NFormItem>
       </NForm>
     </NModal>
