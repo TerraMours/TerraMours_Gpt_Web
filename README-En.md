@@ -28,7 +28,7 @@ Official website: https://terramours.site/
 - **Order List**: View generated orders.
 
 ## Update History
-2023.11.16 V1.2 NEW!:
+2023.12.4 V1.2 NEW!:
 1.Added support for models such as Wenxin Yiyuan and Tongyi Qianwen.
 2.Added configuration of model key pool for Wenxin Yiyuan and Tongyi Qianwen in the management system.
 3.Used the model calling SDK of AllInAI.Sharp.API to uniformly call AI models.

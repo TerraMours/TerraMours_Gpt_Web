@@ -46,7 +46,7 @@ TerraMours-Gpt-Web基于vue3.0+ts+naive UI+vite的ChatGPT项目前端。
 
 
 ## 更新记录
-2023.11.16 V1.2 NEW!：
+2023.12.4 V1.2 NEW!：
 1.增加对文心一言、通义千问的模型支持。
 2.管理系统添加文心一言、通义千问的模型key池配置。
 3.使用AllInAI.Sharp.API 的模型调用SDK，统一调用AI模型。
