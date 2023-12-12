@@ -29,6 +29,7 @@ const authStore = useAuthStoreWithout()
 const modelOptions: Array<{ label: string; value: string }> = [
   { label: 'SD[二次元]', value: 'SD2D' },
   { label: 'SD[真人]', value: 'SD3D' },
+  { label: '百度[Stable-Diffusion-XL]', value: 'Stable-Diffusion-XL' },
   { label: 'CHATGPT', value: 'gpt-3.5-turbo' },
 ]
 const selectedTab = ref('chap1')
@@ -56,9 +57,17 @@ const submit = async () => {
     ms.warning('页面已失效，请刷新页面！')
     return
   }
+  if (formData.Prompt.length == 0) {
+    ms.warning('请填写描述词！')
+    return
+  }
   formData.connectionId = connection.value?.connectionId
+  if (formData.model != 'SD2D' && formData.model != 'SD3D')
+    formData.Size = 1024
+
   const { data } = await GenerateGraph(formData)
   ms.success(data)
+  formData.Prompt.length = ''
   // console.log('提交的参数：', formData) // 在控制台输出提交的参数
 }
 
