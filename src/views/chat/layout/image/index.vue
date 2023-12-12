@@ -26,13 +26,11 @@ const envBaseUrl = htmlElement ? htmlElement.getAttribute('env_now') : null
 // 优先获取环境变量中的值，没有传再获取envconfig的值
 const apiUrl = envBaseUrl !== null ? envBaseUrl : import.meta.env.VITE_GLOB_API_URL
 const authStore = useAuthStoreWithout()
-const modelTypeOptions: Array<{ label: string; value: number }> = [
-  { label: 'CHATGPT', value: 0 },
-  { label: 'SD', value: 1 },
-]
 const modelOptions: Array<{ label: string; value: string }> = [
-  { label: '二次元', value: '二次元' },
-  { label: '真人', value: '真人' },
+  { label: 'SD[二次元]', value: 'SD2D' },
+  { label: 'SD[真人]', value: 'SD3D' },
+  { label: '百度[Stable-Diffusion-XL]', value: 'Stable-Diffusion-XL' },
+  { label: 'CHATGPT', value: 'gpt-3.5-turbo' },
 ]
 const selectedTab = ref('chap1')
 const showModal = ref(false)
@@ -50,9 +48,8 @@ const formData = reactive<SubmitDTO>({
   Count: 1,
   Size: 512,
   negativePrompt: authStore.imgKey ?? '',
-  modelType: 1,
+  model: 'SD2D',
   connectionId: null,
-  ImgModel: null,
 })
 
 const submit = async () => {
@@ -60,9 +57,17 @@ const submit = async () => {
     ms.warning('页面已失效，请刷新页面！')
     return
   }
+  if (formData.Prompt.length == 0) {
+    ms.warning('请填写描述词！')
+    return
+  }
   formData.connectionId = connection.value?.connectionId
+  if (formData.model != 'SD2D' && formData.model != 'SD3D')
+    formData.Size = 1024
+
   const { data } = await GenerateGraph(formData)
   ms.success(data)
+  formData.Prompt.length = ''
   // console.log('提交的参数：', formData) // 在控制台输出提交的参数
 }
 
@@ -228,16 +233,10 @@ onBeforeMount(() => {
         @submit="submit"
       >
         <NPopselect
-          v-model:value="formData.modelType" :options="modelTypeOptions" trigger="click"
-          :on-update:value="(value) => { formData.modelType = value;formData.Count = 1 }"
+          v-model:value="formData.model" :options="modelOptions" trigger="click"
+          :on-update:value="(value) => { formData.model = value;formData.Count = 1 }"
         >
-          <NButton>{{ modelTypeOptions.find(i => i.value === formData.modelType)?.label || '二次元' }}</NButton>
-        </NPopselect>
-        <NPopselect
-					v-model:value="formData.ImgModel" :options="modelOptions" trigger="click"
-					:on-update:value="(value) => { formData.ImgModel = value;formData.Count = 1 }"
-        >
-          <NButton>{{ modelOptions.find(i => i.value === formData.ImgModel)?.label || '二次元' }}</NButton>
+          <NButton>{{ modelOptions.find(i => i.value === formData.model)?.label || '二次元' }}</NButton>
         </NPopselect>
         <HoverButton @click="showModal = true">
           <span class="text-xl text-[#4f555e] dark:text-white">

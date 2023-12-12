@@ -28,10 +28,15 @@ Official website: https://terramours.site/
 - **Order List**: View generated orders.
 
 ## Update History
-2023.11.16 V1.2 NEW!:
-1.Added support for models such as Wenxin Yiyuan and Tongyi Qianwen.
-2.Added configuration of model key pool for Wenxin Yiyuan and Tongyi Qianwen in the management system.
-3.Used the model calling SDK of AllInAI.Sharp.API to uniformly call AI models.
+2023.12.4 V1.3 NEW!：
+1. Added support for model  Stable-Diffusion-XL from Wenxin Yiyan。
+2. chat and image will all config in key pool configuration。
+3. Used the model calling SDK of AllInAI.Sharp.API version 1.15 to uniformly call AI models.
+
+2023.12.4 V1.2:
+1. Added support for models such as Wenxin Yiyuan and Tongyi Qianwen.
+2. Added  configuration of model key pool for Wenxin Yiyuan and Tongyi Qianwen in the management system.
+3. Used the model calling SDK of AllInAI.Sharp.API to uniformly call AI models.
 
 2023.11.16 V1.1.1：
 1. Resolve some bugs after updating the key pool
@@ -41,23 +46,6 @@ Official website: https://terramours.site/
 2. Refactored the key pool interface. The new key pool allows for specifying a particular model.
 3. Fixed an issue where adding a new user with a pricing of 0 still prompted insufficient balance.
 
-October 31st, 2023 Update:
-1. Backend service update:
-	- Optimized the logic of the key pool and key allocation, resolving the issue of needing to restart the service after modifying the key pool.
-
-October 30th, 2023 Update:
-1. Frontend service update:
-	- Fixed a bug where frontend registration and login failures did not display error messages correctly.
-
-October 28th, 2023 Update:
-1. Implemented real-time synchronization of chat lists, enabling data interchange between mobile and desktop devices.
-2. Fixed a bug where the login failure message kept showing "loading."
-
-October 24th, 2023 Update:
-Regarding Docker Compose deployment:
-1. Fixed a bug related to payment failures.
-2. Fixed an issue where image generation failed.
-3. Fixed a problem where some configuration changes were not taking effect.
 
 ## 1. Directory Structure
 ```

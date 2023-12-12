@@ -179,11 +179,10 @@ export function ShareImageList(queryString: string | null, pageIndex: number, pa
 export interface SubmitDTO {
   negativePrompt: string
   Prompt: string
-  modelType: number
+  model: string
   connectionId: any
   Count: number
   Size: number
-  ImgModel: string | null
 }
 
 export function GenerateGraph(submitDTO: SubmitDTO) {
