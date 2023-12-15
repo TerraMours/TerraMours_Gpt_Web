@@ -28,7 +28,22 @@ Official website: https://terramours.site/
 - **Order List**: View generated orders.
 
 ## Update History
-2023.12.4 V1.3 NEW!：
+2023.12.4 V1.5 NEW!:
+
+1. Refactored backend API services to address concurrent query issues.
+
+2. New additions to the data dashboard functionality:
+
+       1. Sales revenue order statistics table
+       2. Token consumption time distribution chart
+       3. Online user count time distribution chart
+       4. Sales revenue time distribution chart
+       5. Statistics and proportional distribution charts of question frequency/image generation frequency/token consumption for each model.
+
+2023.12.4 V1.4 ：
+1.Update AllInAI.Sharp.API SDK to version 1.1.6, adding support for retrieving token values from OpenAI's streaming interface.
+
+2023.12.4 V1.3 ：
 1. Added support for model  Stable-Diffusion-XL from Wenxin Yiyan。
 2. chat and image will all config in key pool configuration。
 3. Used the model calling SDK of AllInAI.Sharp.API version 1.15 to uniformly call AI models.
