@@ -46,7 +46,21 @@ TerraMours-Gpt-Web基于vue3.0+ts+naive UI+vite的ChatGPT项目前端。
 
 
 ## 更新记录
-2023.12.4 V1.3 NEW!：
+2023.12.15 V1.5 NEW!：
+1.重构后台API服务，解决查询并发问题
+
+2.数据看板功能新增项：
+
+       1. 销售额订单统计表
+       2. token 消耗量时间分布统计图
+       3. 上线人数时间分布统计图
+       4. 销售额时间分布统计图
+       5. 各模型的提问次数/图片生成次数/token消耗量 统计数量和比例分布图
+
+2023.12.4 V1.4 ：
+1.更新AllInAI.Sharp.API sdk到1.1.6版本，支持了openai的流式接口的token值获取
+
+2023.12.4 V1.3 ：
 1.增加对文心一言的Stable-Diffusion-XL模型支持。
 2.聊天和画图调用的模型配置统一到key池配置。
 3.使用AllInAI.Sharp.API 的模型调用SDK version 1.15，统一调用AI模型。
