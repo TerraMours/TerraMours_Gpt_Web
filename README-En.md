@@ -28,8 +28,13 @@ Official website: https://terramours.site/
 - **Order List**: View generated orders.
 
 ## Update History
-2023.12.4 V1.6 NEW!:
+2023.12.21 V1.7 NEW!：
+1. Add chat module to the management system.
+2. Fix bug in saving chat records.
+3. Fix bug in displaying images.
+4. Optimize the initialization data of the database.
 
+2023.12.15 V1.6：
 1. Role configuration module added: 1. Added role configuration for administrators. 2. Added default role configuration for new users.
 2. Added setting to give bonus balance to new users upon registration.
 3. Set the pricing to 1k tokens for easy input.
