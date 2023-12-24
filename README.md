@@ -46,7 +46,10 @@ TerraMours-Gpt-Web基于vue3.0+ts+naive UI+vite的ChatGPT项目前端。
 
 
 ## 更新记录
-2023.12.21 V1.7 NEW!：
+2023.12.24 V1.8-preview NEW!：
+1、聊天模块新增gpt4-version 模型，实现图片分析功能
+2、聊天模块手机适配优化
+2023.12.21 V1.7 ：
 
 1.管理系统新增聊天模块 
 2.修复聊天记录保存报错bug
