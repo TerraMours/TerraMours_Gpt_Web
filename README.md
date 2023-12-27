@@ -1,4 +1,4 @@
-# TerraMours-Gpt-Web
+# TerraMours-Gpt-Web（2.0 开发中，将支持知识库搭建，预计1月上线）
 
 简体中文 | [English](./README-En.md)
 
